@@ -1,7 +1,7 @@
 ﻿{
   "name": "Licznik Blogowy dobreprogramy.pl",
   "version": "1.0",
-  "description": "Wtyczka 'Licznik Blogowy' pozwoli na szybką analizę Twoich wpisów, na blogu portalu dobreprogramy, ze względu na ilość wyświetleń i inne zmienne.",
+  "description": "Wtyczka 'Licznik Blogowy' pozwoli na szybką analizę Twoich wpisów na blogu portalu dobreprogramy",
   "manifest_version": 2,
   "browser_action": {
     "default_icon": "icon19.png",
@@ -17,6 +17,5 @@
       "js": ["jquery.min.js","awesomechart.js", "b.js"]
     }
   ],
-  "homepage_url": "https://dp.do/81509",
-  "update_url": "http://djfoxer.pl/licznikbloga/updates.xml"
+  "homepage_url": "https://dp.do/81509"
 }
