@@ -19,25 +19,24 @@ function Comment(author, date, likes) {
     this.likes = likes;
 }
 
-function PostSortdate(a, b) {
-    return b.realDate - a.realDate;
+function PostSort(type, a, b) {
+    if (type == "date") {
+        return b.realDate - a.realDate;
+    }
+    else if (type == "date2") {
+        return a.realDate - b.realDate;
+    }
+    else if (type == "counter") {
+        return b.counter - a.counter;
+    }
+    else if (type == "info") {
+        return b.info - a.info;
+    }
+    else if (type == "comments") {
+        return b.comments - a.comments;
+    }
 }
 
-function PostSortdate2(a, b) {
-    return a.realDate - b.realDate;
-}
-
-function PostSortcounter(a, b) {
-    return b.counter - a.counter;
-}
-
-function PostSortinfo(a, b) {
-    return b.info - a.info;
-}
-
-function PostSortcomments(a, b) {
-    return b.comments - a.comments;
-}
 
 function ParseDate(date) {
     return new Date(date.substring(6, 10), parseInt(date.substring(3, 5)) - 1, parseInt(date.substring(0, 2))
@@ -223,7 +222,8 @@ function GetDataFromHref(hrefList, index) {
         });
     }
     else {
-        myPosts = myPosts.sort(PostSortcounter);
+        myPosts = $.grep(myPosts, function (p) { return p.status >= 0 });
+        myPosts = myPosts.sort(function (a, b) { return PostSort("counter", a, b); });
         SetInfo("ładowanie...");
 
         var baseUrl = $(".userMenu.font-menu-master a").last()[0].href;
@@ -240,7 +240,8 @@ function GetDataFromHref(hrefList, index) {
 
 
 function SortMyPosts(par) {
-    eval("myPosts = myPosts.sort(PostSort" + $(par).attr("data-sort") + ");");
+    var sortName = $(par).attr("data-sort");
+    myPosts = myPosts.sort(function (a, b) { return PostSort(sortName, a, b); });
     $(".post-sort-info").text("Wpisy wg " + $(par).text());
 
     $(".myPostInfo .content-list .XX").empty();
@@ -345,7 +346,7 @@ function ShowChart() {
 
 
 
-    myPosts = myPosts.sort(PostSortdate2);
+    myPosts = myPosts.sort(function (a, b) { return PostSort("date2", a, b); });
 
     tabDay = new Array();
     for (var i = 0; i < 7; i++)
@@ -439,16 +440,22 @@ function ShowChart() {
                 y = commDate.getFullYear();
                 j = $.inArray(y, year_nameComments);
                 if (j != -1) {
-                    year_countComments[j] += 1;
+                    year_countComments[j].counter += 1;
                 } else {
                     year_nameComments.push(y);
-                    year_countComments[$.inArray(y, year_nameComments)] = 1;
+                    year_countComments[$.inArray(y, year_nameComments)] = { counter: 1, year: parseInt(y) };
                 }
             }
 
 
         }
     }
+
+    year_countComments = year_countComments.sort(function (a, b) { return a.year - b.year; })
+    year_nameComments = $.map(year_countComments, function (e) { return e.year });
+    year_countComments = $.map(year_countComments, function (e) { return e.counter });
+
+
     userName = $(".userMenu li:last strong").text();
 
     comUsers = $.map(comUsers, function (o) { return o; })
@@ -658,7 +665,7 @@ function ShowChart() {
     chart2.animate = true;
     chart2.randomColors = true;
     chart2.animationFrames = 60;
-    chart2.labels = ["Główna", "\"Pozostałe\""];
+    chart2.labels = ["Główna - " + main, "\"Pozostałe\" - " + other];
     chart2.draw();
 
 

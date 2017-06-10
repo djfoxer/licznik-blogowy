@@ -1,11 +1,11 @@
 ﻿{
-  "name": "Licznik Blogowy dobreprogramy.pl",
-  "version": "1.0",
-  "description": "Wtyczka 'Licznik Blogowy' pozwoli na szybką analizę Twoich wpisów na blogu portalu dobreprogramy",
+  "name": "Licznik Blogowy dobreprogramy",
+  "version": "1.1",
+  "description": "Wtyczka przedstawia szczegółowe statystyki związane z Twoimi wpisami na blogu portalu dobreprogramy.pl",
   "manifest_version": 2,
   "browser_action": {
     "default_icon": "icon19.png",
-	"default_title": "Licznik Blogowy dobreprogramy.pl" 
+	"default_title": "Licznik Blogowy dobreprogramy" 
   },
   "icons": { 
 			"16": "icon16.png",
@@ -17,5 +17,9 @@
       "js": ["jquery.min.js","awesomechart.js", "b.js"]
     }
   ],
+  "permissions": [
+	  "https://www.dobreprogramy.pl/*",
+	  "http://dp.do/*"
+	],
   "homepage_url": "https://dp.do/81509"
 }
