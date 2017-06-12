@@ -5,13 +5,15 @@
     this.date = date;
     this.realDate = ParseDate(date);
     this.info = info;
-    this.edit = edit;
+    this.edit = url;
     this.comments = parseInt(comments);
     this.status = status;
     this.commentList = new Array();
     this.id = id;
-    this.fullUrl = "";
+    this.fullUrl = url;
 }
+
+
 
 function Comment(author, date, likes) {
     this.author = author;
@@ -39,8 +41,10 @@ function PostSort(type, a, b) {
 
 
 function ParseDate(date) {
-    return new Date(date.substring(6, 10), parseInt(date.substring(3, 5)) - 1, parseInt(date.substring(0, 2))
-        , parseInt(date.substring(11, 13)), parseInt(date.substring(14, 16)));
+    if (date)
+        return new Date(date.substring(6, 10), parseInt(date.substring(3, 5)) - 1, parseInt(date.substring(0, 2))
+            , parseInt(date.substring(11, 13)), parseInt(date.substring(14, 16)));
+    else return null;
 }
 
 var myPosts = [];
@@ -48,85 +52,119 @@ var hrefList = []
 var mainColor = "rgb(150, 0, 0)";
 var fuckSwitchShow = true;
 
-function GoDeeper(ind) {
-    SetInfo("odczytuję ilość wpisów...");
-    $.ajax({
-        url: 'https://www.dobreprogramy.pl/MojBlog,' + ind + '.html',
-        success: function (data) {
-            data = GetHtmlWithoutLodingData(data);
-            posts = $(data).find("#twojewpisy .contentText  a");
-            if (posts.length > 0) {
-                posts.each(function () {
-                    hrefList.push($(this).attr("href"));
-                });
-                GoDeeper(++ind);
-            }
-            else {
-                if (hrefList.length > 0) {
-                    GetDataFromHref(hrefList, 0);
-                }
-            }
+var allPosts = [];
+var isYourProfile = false;
+var blogerName = null;
 
-        }
-    });
+
+var loaderIco = "\\";
+function ShowLoader(text) {
+    if (loaderIco == "|")
+        loaderIco = "/";
+    else if (loaderIco == "/") {
+        loaderIco = "-";
+    }
+    else if (loaderIco == "-") {
+        loaderIco = "\\";
+    }
+    else if (loaderIco == "\\") {
+        loaderIco = "|";
+    }
+    SetInfo(text + loaderIco);
 }
 
-function GetFullUrl(baseHref, index) {
-    linkToSearch = baseHref + "," + index;
+function GetDataFromProfile(index) {
+    linkToSearch = GetBaseUrl(index)
     $.ajax({
         url: linkToSearch,
         success: function (data) {
+            SetInfo("pobieram podstawowe dane ze strony - " + index);
             data = GetHtmlWithoutLodingData(data);
             data = $(data);
             data.find("#content article > header > h1 > a").map(function () { return $(this).attr("href") }).each(function (i, link) {
                 id = link.split(",")[1].split(".")[0];
-                var post = $.grep(myPosts, function (e) { return e.id == id; });
-                if (post.length == 1) {
-                    post[0].fullUrl = link;
-                }
+                allPosts.push(new Post(null, link, 0, null, false, null, null, 0, id));
             });
 
-            if (data.find("a[href='" + baseHref + "," + (++index) + "']").length > 0) {
-                GetFullUrl(baseHref, index);
+            if (data.find("a[href='" + GetBaseUrl(++index) + "']").length > 0) {
+                GetDataFromProfile(index);
             }
             else {
-                CollectCommentsDetails(0);
+                GetDataFromPost(0);
             }
         }
     })
 }
 
-function CollectCommentsDetails(index) {
-    if (myPosts && myPosts.length > index) {
-        SetInfo("odczytano komentarzy z wpisów - " + (index + 1) + "/" + myPosts.length);
-        if (myPosts[index].comments > 0) {
-            $.ajax({
-                url: myPosts[index].fullUrl,
-                success: function (data) {
-                    data = GetHtmlWithoutLodingData(data);
-                    data = $(data);
-                    data.find("#komentarze section").each(function (i, elem) {
-                        myPosts[index].commentList.push(new Comment($(elem).find("a:first").text(),
-                            ParseDate($(elem).find("header span:last").text()),
-                            $(elem).find("footer span").text() * 1
-                        ))
-                    })
-                    CollectCommentsDetails(++index)
-                }
-            });
-        } else {
-            CollectCommentsDetails(++index);
+function GetDataFromPost(index) {
+    if (allPosts && allPosts.length > index) {
+        SetInfo("pobieram podstawowe dane - " + (index + 1) + "/" + allPosts.length);
+        var currentPost = allPosts[index];
+        $.ajax({
+            url: currentPost.url,
+            success: function (data) {
+                data = GetHtmlWithoutLodingData(data);
+                data = $(data);
+                data.find("#komentarze section").each(function (i, elem) {
+                    currentPost.commentList.push(new Comment($(elem).find("header :first-child").text(),
+                        ParseDate($(elem).find("header span:last").text()),
+                        $(elem).find("footer span").text() * 1
+                    ))
+                })
+                currentPost.date = data.find(".content-info:first time").text();
+                currentPost.realDate = ParseDate(currentPost.date);
+                currentPost.name = data.find("article header h1:first").text().trim();
+                currentPost.comments = data.find("#komentarze section").length;
+                GetDataFromPost(++index);
+            }
+        })
+    }
+    else {
+        if (allPosts.length == 0) {
+            SetInfo("Brak wpisów do analizy");
         }
-    } else {
+        else {
+            if (isYourProfile) {
+                GetDataFromBlogPanel(0);
+            }
+            else {
+                DrawData();
+            }
+        }
+
+
+    }
+}
+
+function GetDataFromBlogPanel(index) {
+    if (allPosts && allPosts.length > index) {
+        SetInfo("pobieram rozszerzone dane - " + (index + 1) + "/" + allPosts.length);
+        var currentPost = allPosts[index];
+        currentPost.edit = "https://www.dobreprogramy.pl/Blog,Edycja," + currentPost.id + ".html";
+        $.ajax({
+            url: currentPost.edit,
+            success: function (data) {
+                data = GetHtmlWithoutLodingData(data);
+                data = $(data);
+                stat = data.find(".user-info:eq(1) div:eq(2)").text();
+                currentPost.status = (stat === "Opublikowano" ? 0 : (stat === "Opublikowano (na stronie głównej)" ? 1 : -1));
+                currentPost.counter = parseInt(data.find(".user-info:eq(1) div:eq(7) div:eq(1)").text());
+                currentPost.info = data.find("#phContentLeft_trMotive").text() != "";
+                GetDataFromBlogPanel(++index);
+            }
+        })
+    }
+    else {
         DrawData();
     }
 }
 
 function DrawData() {
     SetInfo("gotowe...");
-    tab = "<div class='post-sort-info section-title color-heading font-heading text-h45'>Wpisy wg ilości wyświetleń</div><div class='content-list XX'>";
+    allPosts = allPosts.sort(function (a, b) { return PostSort("comments", a, b); });
+    tab = "<div class='post-sort-info section-title color-heading font-heading text-h45'>Wpisy wg " + (isYourProfile ? "ilości wyświetleń" : "ilości komentarzy") + "</div><div class='content-list XX'>";
 
-    for (var i = 0; i < (myPosts.length < 10 ? myPosts.length : 10); i++) {
+    for (var i = 0; i < (allPosts.length < 10 ? allPosts.length : 10); i++) {
         tab += AddPostInfo(i);
     }
     tab += "</div><div class='moreMore' style='padding-top:5px;' ><a href='javascript:void(0)' class='color-heading text-bold link-color font-heading text-h7'>pokaż wszystkie</a></div>";
@@ -139,13 +177,13 @@ function DrawData() {
         + "<div class='text-h5 arrow'>"
         + "Sortuj wpisy wg:</div>"
         + "<ul style='display:none'>"
-        + "<li><a href='javascript:void(0)' data-sort='counter' class='text-h5 color-content'>"
+        + "<li " + HideIfNotYourProfile() + "><a href='javascript:void(0)' data-sort='counter' class='text-h5 color-content'>"
         + "ilości wyświetleń</a></li>"
         + "<li><a href='javascript:void(0)' data-sort='comments' class='text-h5 color-content'>"
         + "ilości komentarzy</a></li>"
         + "<li><a href='javascript:void(0)' data-sort='date' class='text-h5 color-content'>"
         + "daty publikacji</a></li>"
-        + "<li><a href='javascript:void(0)' data-sort='info' class='text-h5 color-content'>"
+        + "<li " + HideIfNotYourProfile() + "><a href='javascript:void(0)' data-sort='info' class='text-h5 color-content'>"
         + "adnotacji moderacji</a></li>"
         + "</ul>"
         + "</div>"
@@ -155,21 +193,21 @@ function DrawData() {
     sumSee = 0;
     sumPost = 0;
     sumPostMain = 0;
-    for (var i = 0; i < myPosts.length; i++) {
-        sumCom += myPosts[i].comments;
-        sumSee += myPosts[i].counter;
-        if (myPosts[i].status >= 0)
+    for (var i = 0; i < allPosts.length; i++) {
+        sumCom += allPosts[i].comments;
+        sumSee += allPosts[i].counter;
+        if (allPosts[i].status >= 0)
             sumPost += 1;
-        if (myPosts[i].status == 1)
+        if (allPosts[i].status == 1)
             sumPostMain += 1;
     }
     if (sumPost > 0) {
         tab = "<div class='myStatsInfo content-info' style='margin:15px;'>";
-        tab += "<div><label>wyświetleń - </label><span>" + sumSee.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + "</span><label> (średnia <label><span>"
+        tab += "<div " + HideIfNotYourProfile() + "><label>wyświetleń - </label><span>" + sumSee.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + "</span><label> (średnia <label><span>"
             + (sumSee / sumPost).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + "</span><label>)</label></div>";
         tab += "<div><label>komentarzy - </label><span>" + sumCom.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + "</span><label> (średnia <label><span>"
             + (sumCom / sumPost).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + "</span><label>)</label></div>";
-        tab += "<div><label>na głównej - </label><span>" + ((sumPostMain / sumPost) * 100).toFixed(0) + "%</span></div>";
+        tab += "<div><label>wpisów - </label><span>" + sumPost + "</span><label " + HideIfNotYourProfile() + "> (na głównej: <span>" + ((sumPostMain / sumPost) * 100).toFixed(0) + "%</span>)</label></div>";
         tab += "<div class='BtnCharrtsMagicOMG counterX link-color font-heading text-h7' style='text-align:center' ><a  href='javascript:void(0)' class='btn'>pokaż wykresy</a></div>";
         tab += "</div>"
 
@@ -194,58 +232,15 @@ function DrawData() {
     $("[data-sort]").click(function () { SortMyPosts(this); })
 }
 
-function GetDataFromHref(hrefList, index) {
-    if (hrefList.length > index) {
-        $.ajax({
-            url: hrefList[index],
-            success: function (data) {
-                data = GetHtmlWithoutLodingData(data);
-                data = $(data);
-                id = hrefList[index].split(",")[2].split('.')[0];
-                stat = data.find(".user-info:eq(1) div:eq(2)").text();
-                stat = (stat === "Opublikowano" ? 0 : (stat === "Opublikowano (na stronie głównej)" ? 1 : -1));
-                var url = "http://dp.do/" + id;
-                v = new Post(data.find("#phContentLeft_txtTitle").val(),
-                    url,
-                    data.find(".user-info:eq(1) div:eq(7) div:eq(1)").text(),
-                    data.find(".user-info:eq(1) div:eq(5)").text(),
-                    data.find("#phContentLeft_trMotive").text() != "",
-                    hrefList[index],
-                    data.find(".user-info:eq(1) div:eq(10) div:eq(1)").text(),
-                    stat,
-                    id
-                );
-                myPosts.push(v);
-                SetInfo("odczytano wpisów - " + (index + 1) + "/" + hrefList.length);
-                GetDataFromHref(hrefList, ++index);
-            }
-        });
-    }
-    else {
-        myPosts = $.grep(myPosts, function (p) { return p.status >= 0 });
-        myPosts = myPosts.sort(function (a, b) { return PostSort("counter", a, b); });
-        SetInfo("ładowanie...");
-
-        var baseUrl = $(".userMenu.font-menu-master a").last()[0].href;
-        GetFullUrl(baseUrl, 1);
-
-        SetInfo("przygotowuję do pobrania komentarzy...");
-
-
-
-
-    }
-}
-
 
 
 function SortMyPosts(par) {
     var sortName = $(par).attr("data-sort");
-    myPosts = myPosts.sort(function (a, b) { return PostSort(sortName, a, b); });
+    allPosts = allPosts.sort(function (a, b) { return PostSort(sortName, a, b); });
     $(".post-sort-info").text("Wpisy wg " + $(par).text());
 
     $(".myPostInfo .content-list .XX").empty();
-    countToShow = ($(".moreMore").length == 0) ? myPosts.length : (myPosts.length < 10 ? myPosts.length : 10);
+    countToShow = ($(".moreMore").length == 0) ? allPosts.length : (allPosts.length < 10 ? allPosts.length : 10);
     tab = "";
     for (var i = 0; i < countToShow; i++) {
         tab += AddPostInfo(i);
@@ -255,12 +250,16 @@ function SortMyPosts(par) {
 
 }
 
+function HideIfNotYourProfile() {
+    return isYourProfile ? "" : "style='display:none'"
+}
+
 function AddPostInfo(i) {
     return "<div class='item-content float-left'>"
-        + "<h3 class='text-h65'><a class='color heading " + (myPosts[i].info == true ? "link-color font-heading" : "") + "' target='_blank' href='" + myPosts[i].url + "'>" + myPosts[i].name + "</a></h3>"
-        + "<div class='content-info'>" + myPosts[i].date + "</div>"
-        + "<div class='content-info'><a href='" + myPosts[i].edit + "' class='color-heading text-bold '>" + myPosts[i].counter.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " wyświetleń</a>     "
-        + "<span class='link-color'>/</span> <a href='" + myPosts[i].edit + "' class='color-heading text-bold '>" + myPosts[i].comments.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " komentarzy</a>"
+        + "<h3 class='text-h65'><a class='color heading " + (allPosts[i].info == true ? "link-color font-heading" : "") + "' target='_blank' href='" + allPosts[i].url + "'>" + allPosts[i].name + "</a></h3>"
+        + "<div class='content-info'>" + allPosts[i].date + "</div>"
+        + "<div class='content-info'><a href='" + allPosts[i].edit + "' class='color-heading text-bold' " + HideIfNotYourProfile() + " >" + allPosts[i].counter.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " wyświetleń</a>     "
+        + "<span class='link-color' " + HideIfNotYourProfile() + ">/</span> <a href='" + allPosts[i].edit + "' class='color-heading text-bold '>" + allPosts[i].comments.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " komentarzy</a>"
         + "</div>"
         + "</div>"
         + "<div class='clear'></div><div class='border-verctical'></div>"
@@ -270,7 +269,7 @@ function AddPostInfo(i) {
 function ShowRest() {
     $(".myPostInfo .content-list .XX").empty();
     tab = "";
-    for (var i = 0; i < myPosts.length; i++) {
+    for (var i = 0; i < allPosts.length; i++) {
         tab += AddPostInfo(i);
     }
     $(".myPostInfo .content-list .XX").append(tab);
@@ -289,19 +288,37 @@ function StartBlending() {
     myPosts = [];
     hrefList = []
     SetInfo("rozpoczynam pracę...");
-    GoDeeper(1);
+    //GoDeeper(1);
+
+
+    GetDataFromProfile(1);
+}
+
+var baseBlogUrl = $(".user-info a:first").attr("href");
+function GetBaseUrl(index) {
+    var sufix = ",Uzytkownik.html";
+    if (baseBlogUrl.endsWith(sufix)) {
+        return baseBlogUrl.replace(sufix, index + "," + sufix);
+    }
+    else {
+        return baseBlogUrl + "," + index;
+    }
 }
 
 
-if ($(".profile-info").length == 1
-    && $(".userMenu li:last a").attr("href").toLowerCase() == $(".user-info a:eq(0)").attr("href").toLowerCase()) {
-    //$(".myPostInfo").remove();
-    tab = "<div style='padding-top:10px;' class='myPostInfo'><div class='counterX link-color font-heading text-h7' style='text-align:center' ><a href='javascript:void(0)' class='btn'>rozpocznij analizę wpisów na blogu</a><div class='myInfo' style='padding-top:5px;' ><a href='http://dp.do/81509' class='color-heading text-bold'>stworzone przez: djfoxer [1.0]</a></div></div><div class='myPosts content-list'>"
+if ($(".profile-info").length == 1) {
+    blogerName = $(".user-info a:first").text();
+    tab = "<div style='padding-top:10px;' class='myPostInfo'><div class='counterX link-color font-heading text-h7' style='text-align:center' ><a href='javascript:void(0)' class='btn'>rozpocznij analizę wpisów blogera " + blogerName + "</a><div class='myInfo' style='padding-top:5px;' ><a href='http://dp.do/81509' class='color-heading text-bold'>stworzone przez: djfoxer [1.2]</a></div></div><div class='myPosts content-list'>"
         + "</div></div>";
     $(".search:eq(0)").append(tab);
 
     $(".myPostInfo a:first").click(StartBlending);
+    isYourProfile = $(".userMenu li:last a strong").text() === blogerName;
 }
+else {
+    blogerName = null;
+}
+
 
 
 function GetHtmlWithoutLodingData(rawResponse) {
@@ -346,7 +363,7 @@ function ShowChart() {
 
 
 
-    myPosts = myPosts.sort(function (a, b) { return PostSort("date2", a, b); });
+    allPosts = allPosts.sort(function (a, b) { return PostSort("date2", a, b); });
 
     tabDay = new Array();
     for (var i = 0; i < 7; i++)
@@ -391,14 +408,14 @@ function ShowChart() {
     comUsersName = [];
     comUsersValue = [];
 
-    for (var i = 0; i < myPosts.length; i++) {
-        tabDay[myPosts[i].realDate.getDay()] += 1;
-        tabMonth[myPosts[i].realDate.getMonth()] += 1;
-        if (myPosts[i].status == 0)
+    for (var i = 0; i < allPosts.length; i++) {
+        tabDay[allPosts[i].realDate.getDay()] += 1;
+        tabMonth[allPosts[i].realDate.getMonth()] += 1;
+        if (allPosts[i].status == 0)
             other += 1;
-        if (myPosts[i].status == 1)
+        if (allPosts[i].status == 1)
             main += 1;
-        y = myPosts[i].realDate.getFullYear();
+        y = allPosts[i].realDate.getFullYear();
         j = $.inArray(y, year_name);
         if (j != -1) {
             year_count[j] += 1;
@@ -406,7 +423,7 @@ function ShowChart() {
             year_name.push(y);
             year_count[$.inArray(y, year_name)] = 1;
         }
-        h = parseInt(myPosts[i].realDate.getHours());
+        h = parseInt(allPosts[i].realDate.getHours());
         if (h >= 0 && h < 6)
             hours[0] += 1;
         else if (h >= 6 && h < 12)
@@ -416,9 +433,9 @@ function ShowChart() {
         else if (h >= 18)
             hours[3] += 1;
 
-        if (myPosts[i].comments) {
-            for (var index = 0; index < myPosts[i].commentList.length; index++) {
-                h = parseInt(myPosts[i].commentList[index].date.getHours());
+        if (allPosts[i].comments) {
+            for (var index = 0; index < allPosts[i].commentList.length; index++) {
+                h = parseInt(allPosts[i].commentList[index].date.getHours());
                 if (h >= 0 && h < 6)
                     hoursCom[0] += 1;
                 else if (h >= 6 && h < 12)
@@ -428,12 +445,12 @@ function ShowChart() {
                 else if (h >= 18)
                     hoursCom[3] += 1;
 
-                if (!comUsers[myPosts[i].commentList[index].author]) {
-                    comUsers[myPosts[i].commentList[index].author] = { author: myPosts[i].commentList[index].author, counter: 0, likes: 0 };
+                if (!comUsers[allPosts[i].commentList[index].author]) {
+                    comUsers[allPosts[i].commentList[index].author] = { author: allPosts[i].commentList[index].author, counter: 0, likes: 0 };
                 }
-                comUsers[myPosts[i].commentList[index].author].counter += 1;
-                comUsers[myPosts[i].commentList[index].author].likes += myPosts[i].commentList[index].likes;
-                commDate = myPosts[i].commentList[index].date;
+                comUsers[allPosts[i].commentList[index].author].counter += 1;
+                comUsers[allPosts[i].commentList[index].author].likes += allPosts[i].commentList[index].likes;
+                commDate = allPosts[i].commentList[index].date;
                 tabDayComments[commDate.getDay()] += 1;
                 tabMonthComments[commDate.getMonth()] += 1;
 
@@ -456,17 +473,15 @@ function ShowChart() {
     year_countComments = $.map(year_countComments, function (e) { return e.counter });
 
 
-    userName = $(".userMenu li:last strong").text();
-
     comUsers = $.map(comUsers, function (o) { return o; })
-    userComments = $.grep(comUsers, function (u) { return u.author == userName });
+    userComments = $.grep(comUsers, function (u) { return u.author == blogerName });
     if (userComments.length == 1) {
         userComments = userComments[0].counter;
     }
     else {
         userComments = 0;
     }
-    comUsers = $.grep(comUsers, function (u) { return u.author != userName });
+    comUsers = $.grep(comUsers, function (u) { return u.author != blogerName });
 
     comUsers = comUsers.sort(function (a, b) { return b.counter - a.counter; }).slice(0, 10);
 
@@ -651,25 +666,25 @@ function ShowChart() {
     chart3.labels = year_name;
     chart3.draw();
 
+    if (isYourProfile) {
 
-
-    $("#content .DivCharts").prepend("<canvas id='canvas2' width='629' height='400'></canvas>");
-
-
-
-    var chart2 = new AwesomeChart('canvas2');
-    chart2.title = "Ilość wpisów na głównej";
-    chart2.data = [chartMain, 100 - chartMain];
-    chart2.chartType = 'exploded pie';
-    chart2.randomColors = true;
-    chart2.animate = true;
-    chart2.randomColors = true;
-    chart2.animationFrames = 60;
-    chart2.labels = ["Główna - " + main, "\"Pozostałe\" - " + other];
-    chart2.draw();
+        $("#content .DivCharts").prepend("<canvas id='canvas2' width='629' height='400'></canvas>");
 
 
 
+        var chart2 = new AwesomeChart('canvas2');
+        chart2.title = "Ilość wpisów na głównej";
+        chart2.data = [chartMain, 100 - chartMain];
+        chart2.chartType = 'exploded pie';
+        chart2.randomColors = true;
+        chart2.animate = true;
+        chart2.randomColors = true;
+        chart2.animationFrames = 60;
+        chart2.labels = ["Główna - " + main, "\"Pozostałe\" - " + other];
+        chart2.draw();
+
+
+    }
 
 
 }
