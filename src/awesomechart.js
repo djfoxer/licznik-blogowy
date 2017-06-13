@@ -1,1 +1,1390 @@
-function AwesomeChart(e){var t=typeof e==="string"?document.getElementById(e):e;this.ctx=t.getContext("2d");this.width=this.ctx.canvas.width;this.height=this.ctx.canvas.height;this.numberOfDecimals=0;this.proportionalSizes=true;this.widthSizeFactor=this.width/400;this.heightSizeFactor=this.height/400;this.chartType="bar";this.randomColors=false;this.animate=false;this.animationFrames=60;this.marginTop=10;this.marginBottom=10;this.marginLeft=10;this.marginRight=10;this.labelMargin=10;this.dataValueMargin=20;this.titleMargin=10;this.yAxisLabelMargin=5;this.data=new Array;this.labels=new Array;this.colors=new Array;this.title=null;this.backgroundFillStyle="rgba(255,255,255,0)";this.borderStrokeStyle="rgba(255,255,255,0)";this.borderWidth=1;this.labelFillStyle="rgb(220, 36, 0)";this.labelFont="sans-serif";this.labelFontHeight=12;this.labelFontStyle="";this.dataValueFillStyle="#333";this.dataValueFont="sans-serif";this.dataValueFontHeight=15;this.dataValueFontStyle="";this.titleFillStyle="#333";this.titleFont="sans-serif";this.titleFontHeight=16;this.titleFontStyle="bold";this.yAxisLabelFillStyle="#333";this.yAxisLabelFont="sans-serif";this.yAxisLabelFontHeight=10;this.yAxisLabelFontStyle="";var n=this.ctx.createLinearGradient(0,0,0,this.height);n.addColorStop(.2,"#fdfdfd");n.addColorStop(.8,"#ededed");this.chartBackgroundFillStyle=n;this.chartBorderStrokeStyle="#999";this.chartBorderLineWidth=1;this.chartHorizontalLineStrokeStyle="#999";this.chartHorizontalLineWidth=1;this.chartVerticalLineStrokeStyle="#999";this.chartVerticalLineWidth=1;this.chartMarkerSize=5;this.chartPointRadius=4;this.chartPointFillStyle="rgb(150, 36, 0)";this.chartLineStrokeStyle="rgba(150, 36, 0, 0.5)";this.chartLineWidth=2;this.barFillStyle="rgb(220, 36, 0)";this.barStrokeStyle="#fff";this.barBorderWidth=2;this.barShadowColor="rgba(0, 0, 0, 0.5)";this.barShadowBlur=5;this.barShadowOffsetX=3;this.barShadowOffsetY=0;this.barHGap=20;this.barVGap=20;this.explosionOffset=20;this.pieFillStyle="rgb(220, 36, 0)";this.pieStrokeStyle="#fff";this.pieBorderWidth=2;this.pieShadowColor="rgba(0, 0, 0, 0.5)";this.pieShadowBlur=5;this.pieShadowOffsetX=3;this.pieShadowOffsetY=0;this.pieStart=0;this.pieTotal=null;this.generateRandomColor=function(){var e=new Array;for(var t=0;t<3;t++){e.push(Math.ceil(Math.random()*150+50))}return"rgb("+e.join(",")+")"};this.setChartDataFromJSON=function(e){for(var t in e){this.labels.push(t);this.data.push(e[t])}};this.draw=function(){var e=this.ctx;e.lineCap="round";var t=Math.min(this.widthSizeFactor,this.heightSizeFactor);if(this.proportionalSizes){this.labelMargin=this.labelMargin*this.heightSizeFactor;this.dataValueMargin=this.dataValueMargin*this.heightSizeFactor;this.titleMargin=this.titleMargin*this.heightSizeFactor;this.yAxisLabelMargin=this.yAxisLabelMargin*this.heightSizeFactor;this.labelFontHeight=this.labelFontHeight*t;this.dataValueFontHeight=this.dataValueFontHeight*t;this.titleFontHeight=this.titleFontHeight*t;this.yAxisLabelFontHeight=this.yAxisLabelFontHeight*t;this.barHGap=this.barHGap*this.widthSizeFactor;this.barVGap=this.barHGap*this.heightSizeFactor;this.explosionOffset=this.explosionOffset*t}if(this.randomColors){for(var n=0;n<this.data.length;n++){if(!this.colors[n]){this.colors[n]=this.generateRandomColor()}}}if(this.chartType=="pie"){if(this.animate){this.animatePieChart("pie")}else{this.drawPieChart(false)}}else if(this.chartType=="ring"||this.chartType=="doughnut"){if(this.animate){this.animatePieChart("ring")}else{this.drawPieChart(true)}}else if(this.chartType=="exploded pie"){if(this.animate){this.animatePieChart("exploded")}else{this.drawExplodedPieChart()}}else if(this.chartType=="horizontal bars"){if(this.animate){this.animateVerticalBarChart()}else{this.drawVerticalBarChart()}}else if(this.chartType=="pareto"){this.drawParetoChart()}else{if(this.animate){this.animateBarChart()}else{this.drawBarChart()}}this.drawTitleAndBorders()};this.drawTitleAndBorders=function(){var e=this.ctx;if(this.title!=null){e.font=this.titleFontStyle+" "+this.titleFontHeight+"px "+this.titleFont;e.fillStyle=this.titleFillStyle;e.textAlign="center";e.textBaseline="bottom";e.fillText(this.title,this.width/2,this.marginTop+this.titleFontHeight,this.width-10)}e.lineWidth=this.borderWidth;e.strokeStyle=this.borderStrokeStyle;e.strokeRect(0,0,this.width,this.height);e.globalCompositeOperation="destination-over";e.fillStyle=this.backgroundFillStyle;e.fillRect(0,0,this.width,this.height);e.globalCompositeOperation="source-over"};this.drawBarChart=function(){var e=this.ctx;var t=this.data.length;var n=this.data.max();var r=this.data.min();var i=(this.width-this.marginLeft-this.marginRight-(t-1)*this.barHGap)/t;var s=this.marginTop+this.labelMargin+this.labelFontHeight+this.dataValueMargin+this.dataValueFontHeight;var o=this.height-this.marginBottom;if(this.title!=null){s+=this.titleFontHeight+this.titleMargin}var u=this.height-this.marginBottom;if(r<0){o=this.height-this.marginBottom-this.labelMargin-this.labelFontHeight-this.dataValueMargin-this.dataValueFontHeight;u=o+(this.height-this.marginBottom-s-this.labelMargin-this.labelFontHeight-this.dataValueMargin-this.dataValueFontHeight)*r/(Math.abs(r)+n)}var a=Math.max(Math.abs(u-s),Math.abs(u-o));var f=Math.max(Math.abs(r),Math.abs(n));var l=this.marginLeft;var c=u;var h=0;var p=0;for(var d=0;d<this.data.length;d++){p=this.data[d];h=p*a/f;if(this.colors[d]){e.fillStyle=this.colors[d]}else{e.fillStyle=this.barFillStyle}e.strokeStyle=this.barStrokeStyle;e.lineWidth=this.barBorderWidth;e.beginPath();e.moveTo(l,c);e.lineTo(l,c-h);e.lineTo(l+i,c-h);e.lineTo(l+i,c);e.save();e.shadowOffsetX=this.barShadowOffsetX;e.shadowOffsetY=this.barShadowOffsetY;e.shadowBlur=this.barShadowBlur;e.shadowColor=this.barShadowColor;e.fill();e.restore();e.stroke();e.font=this.labelFontStyle+" "+this.labelFontHeight+"px "+this.labelFont;if(this.colors[d]){e.fillStyle=this.colors[d]}else{e.fillStyle=this.labelFillStyle}e.textAlign="center";if(this.labels[d]){if(p>=0){e.textBaseline="bottom";e.fillText(this.labels[d],l+i/2,u-h-this.labelMargin,i)}else{e.textBaseline="top";e.fillText(this.labels[d],l+i/2,u-h+this.labelMargin,i)}}e.font=this.dataValueFontStyle+" "+this.dataValueFontHeight+"px "+this.dataValueFont;e.fillStyle=this.dataValueFillStyle;e.textAlign="center";if(p>=0){e.textBaseline="bottom";e.fillText(p,l+i/2,u-h-this.labelMargin-this.dataValueMargin,i)}else{e.textBaseline="top";e.fillText(p,l+i/2,u-h+this.labelMargin+this.dataValueMargin,i)}l=l+i+this.barHGap}};this.animateBarChart=function(){var e=this,t=this.animationFrames,n=0,r=this.data.max(),i=this.data.min(),s=this.marginTop+this.labelMargin+this.labelFontHeight+this.dataValueMargin+this.dataValueFontHeight,o=barBottomY=this.height-this.marginBottom;if(this.title!=null){s+=this.titleFontHeight+this.titleMargin}if(i<0){o=this.height-this.marginBottom-this.labelMargin-this.labelFontHeight-this.dataValueMargin-this.dataValueFontHeight;barBottomY=o+(this.height-this.marginBottom-s-this.labelMargin-this.labelFontHeight-this.dataValueMargin-this.dataValueFontHeight)*i/(Math.abs(i)+r)}var u=o-s,a=0,f=0;var l=0;if(i<0){var c=Math.max(Math.abs(barBottomY-s),Math.abs(barBottomY-o)),h=Math.max(Math.abs(i),Math.abs(r));l=Math.abs(i*c/h+this.labelMargin+this.labelFontHeight)}this.marginBottom+=l;if(this.title!=null){this.titleMargin+=u-l}else{this.marginTop+=u-l}a=l/t;f=(u-l)/t;var p=function(){if(n++<t){e.marginBottom-=a;if(e.title!=null){e.titleMargin-=f}else{e.marginTop-=f}e.ctx.clearRect(0,0,e.width,e.height);e.drawBarChart();e.drawTitleAndBorders();if(typeof window.requestAnimationFrame=="function"){window.requestAnimationFrame(p)}else if(typeof window.msRequestAnimationFrame=="function"){window.msRequestAnimationFrame(p)}else if(typeof window.webkitRequestAnimationFrame=="function"){window.webkitRequestAnimationFrame(p)}else if(window.mozRequestAnimationFrame){window.mozRequestAnimationFrame(p)}else{setTimeout(p,16.6666666)}}};p()};this.drawVerticalBarChart=function(){var e=this.ctx;e.save();e.translate(this.width/2,this.height/2);e.rotate(Math.PI/2);e.translate(-this.width/2,-this.height/2);var t=this.data.length;var n=this.data.max();var r=this.data.min();var i=this.marginLeft;if(this.title!=null){i+=this.titleFontHeight+this.titleMargin}var s=(this.width-i-this.marginRight-(t-1)*this.barHGap)/t;e.font=this.labelFontStyle+" "+this.labelFontHeight+"px "+this.labelFont;var o=0;var u=0;for(var a=0;a<this.labels.length;a++){u=e.measureText(this.labels[a]).width;if(u>o){o=u}}e.font=this.dataValueFontStyle+" "+this.dataValueFontHeight+"px "+this.dataValueFont;var f=0;var l=0;for(var a=0;a<this.data.length;a++){l=e.measureText(this.data[a]).width;if(l>f){f=l}}var c=this.marginTop+Math.max(this.labelMargin+o,this.dataValueMargin+f);var h=this.height-this.marginBottom;var p=this.height-this.marginBottom;if(r<0){h=this.height-this.marginBottom-this.labelMargin-this.labelFontHeight-this.dataValueMargin-this.dataValueFontHeight;p=h+(this.height-this.marginBottom-c-this.labelMargin-this.labelFontHeight-this.dataValueMargin-this.dataValueFontHeight)*r/(Math.abs(r)+n)}var d=Math.max(Math.abs(p-c),Math.abs(p-h));var v=Math.max(Math.abs(r),Math.abs(n));var m=i;var g=p;var y=0;var b=0;for(var a=0;a<this.data.length;a++){b=this.data[a];y=b*d/v;if(this.colors[a]){e.fillStyle=this.colors[a]}else{e.fillStyle=this.barFillStyle}e.strokeStyle=this.barStrokeStyle;e.lineWidth=this.barBorderWidth;e.beginPath();e.moveTo(m,g);e.lineTo(m,g-y);e.lineTo(m+s,g-y);e.lineTo(m+s,g);e.save();e.shadowOffsetX=this.barShadowOffsetX;e.shadowOffsetY=this.barShadowOffsetY;e.shadowBlur=this.barShadowBlur;e.shadowColor=this.barShadowColor;e.fill();e.restore();e.stroke();e.font=this.labelFontStyle+" "+this.labelFontHeight+"px "+this.labelFont;if(this.colors[a]){e.fillStyle=this.colors[a]}else{e.fillStyle=this.labelFillStyle}e.save();e.translate(m+s/2,p-y);e.rotate(-Math.PI/2);e.textBaseline="top";if(this.labels[a]){if(b>=0){e.textAlign="left";e.fillText(this.labels[a],this.labelMargin,0)}else{e.textAlign="right";e.fillText(this.labels[a],-this.labelMargin,0)}}e.font=this.dataValueFontStyle+" "+this.dataValueFontHeight+"px "+this.dataValueFont;e.fillStyle=this.dataValueFillStyle;e.textBaseline="bottom";if(b>=0){e.textAlign="left";e.fillText(b,this.labelMargin,0)}else{e.textAlign="right";e.fillText(b,-this.labelMargin,0)}e.restore();m=m+s+this.barHGap}e.restore()};this.animateVerticalBarChart=function(){var e=this,t=this.animationFrames,n=0,r=this.data.max(),i=this.data.min(),s=this.data.length,o=this.ctx,u=this.marginLeft;marginTop=this.marginTop;marginTopCurrent=0;if(this.title!=null){u+=this.titleFontHeight+this.titleMargin}var a=(this.width-u-this.marginRight-(s-1)*this.barHGap)/s;o.font=this.labelFontStyle+" "+this.labelFontHeight+"px "+this.labelFont;var f=0;var l=0;for(var c=0;c<this.labels.length;c++){l=o.measureText(this.labels[c]).width;if(l>f){f=l}}o.font=this.dataValueFontStyle+" "+this.dataValueFontHeight+"px "+this.dataValueFont;var h=0;var p=0;for(var c=0;c<s;c++){p=o.measureText(this.data[c]).width;if(p>h){h=p}}var d=this.marginTop+Math.max(this.labelMargin+f,this.dataValueMargin+h);var v=this.height-this.marginBottom;var m=this.height-this.marginBottom;if(i<0){v=this.height-this.marginBottom-this.labelMargin-this.labelFontHeight-this.dataValueMargin-this.dataValueFontHeight;m=v+(this.height-this.marginBottom-d-this.labelMargin-this.labelFontHeight-this.dataValueMargin-this.dataValueFontHeight)*i/(Math.abs(i)+r)}var g=Math.max(Math.abs(m-d),Math.abs(m-v));var y=Math.max(Math.abs(i),Math.abs(r));var b=0;if(i<0){b=Math.abs(i*g/y)}var w=r*g/y+b,E=0,S=0;this.marginBottom+=b;this.marginTop+=w-b;E=b/t;S=(w-b)/t;var x=function(){if(n++<t){e.marginBottom-=E;e.marginTop-=S;e.ctx.clearRect(0,0,e.width,e.height);e.drawVerticalBarChart();marginTopCurrent=e.marginTop;e.marginTop=marginTop;e.drawTitleAndBorders();e.marginTop=marginTopCurrent;if(typeof window.requestAnimationFrame=="function"){window.requestAnimationFrame(x)}else if(typeof window.msRequestAnimationFrame=="function"){window.msRequestAnimationFrame(x)}else if(typeof window.webkitRequestAnimationFrame=="function"){window.webkitRequestAnimationFrame(x)}else if(window.mozRequestAnimationFrame){window.mozRequestAnimationFrame(x)}else{setTimeout(x,16.6666666)}}};x()};this.drawPieChart=function(e){var t=this.ctx;t.lineWidth=this.pieBorderWidth;var n=0,r=0,i=this.data.length;for(var s=0;s<i;s++){r+=this.data[s];if(this.data[s]<0){return}}if(this.pieTotal==null){n=r}else{n=this.pieTotal}var o=this.width-this.marginLeft-this.marginRight;var u=this.height-this.marginTop-this.marginBottom;if(this.title){u=u-this.titleFontHeight-this.titleMargin}var a=this.width/2;var f=this.marginTop+u/2;if(this.title){f+=this.titleFontHeight+this.titleMargin}var l=2*Math.PI;var c=Math.min(o,u)/2;t.font=this.labelFontStyle+" "+this.labelFontHeight+"px "+this.labelFont;var h=0;var p=0;for(var s=0;s<this.labels.length;s++){p=t.measureText(this.labels[s]).width;if(p>h){h=p}}c=c-h-this.labelMargin;var d=this.pieStart*l/r;var v=d;var m=0;var g=0;for(var s=0;s<i;s++){t.beginPath();g=this.data[s]*l/n;m=v+g;t.moveTo(a,f);t.arc(a,f,c,v,m,false);t.lineTo(a,f);v=m;if(this.colors[s]){t.fillStyle=this.colors[s]}else{t.fillStyle=this.pieFillStyle}t.fill();t.strokeStyle=this.pieStrokeStyle;t.stroke()}t.save();t.shadowOffsetX=this.pieShadowOffsetX;t.shadowOffsetY=this.pieShadowOffsetY;t.translate(a,f);t.beginPath();t.moveTo(0,0);t.arc(0,0,c,d,m,false);t.shadowBlur=this.pieShadowBlur;t.shadowColor=this.pieShadowColor;t.globalCompositeOperation="destination-over";t.fillStyle="rgba(0,0,0,1.0)";t.fill();t.restore();if(e){var y=c/2;t.save();t.beginPath();t.moveTo(a+y,f);t.arc(a,f,y+this.pieBorderWidth,d,m,false);t.fillStyle=this.pieStrokeStyle;t.fill();t.restore();t.save();t.beginPath();t.moveTo(a+y,f);t.arc(a,f,y,0,l,false);t.globalCompositeOperation="destination-out";t.fillStyle="#000";t.fill();t.restore();t.save();t.shadowOffsetX=this.pieShadowOffsetX;t.shadowOffsetY=this.pieShadowOffsetY;t.translate(a,f);t.beginPath();t.arc(0,0,y,d,m,false);t.shadowBlur=this.pieShadowBlur;t.shadowColor=this.pieShadowColor;t.globalCompositeOperation="destination-over";t.strokeStyle=this.pieStrokeStyle;t.stroke();t.restore()}var v=this.pieStart*l/r;var m=0;var g=0;t.beginPath();for(var s=0;s<this.data.length;s++){t.save();g=this.data[s]*l/n;m=v+g;var b=v+g/2;t.translate(a,f);t.rotate(b);t.font=this.labelFontStyle+" "+this.labelFontHeight+"px "+this.labelFont;if(this.colors[s]){t.fillStyle=this.colors[s]}else{t.fillStyle=this.labelFillStyle}t.textAlign="start";if(this.labels[s]){if(b>Math.PI/2&&b<=3*(Math.PI/2)){var w=c+this.labelMargin+t.measureText(this.labels[s]).width/2;t.translate(w,0);t.rotate(Math.PI);t.translate(-w,0)}t.textBaseline="middle";t.fillText(this.labels[s],c+this.labelMargin,0)}t.restore();v=m}};this.drawExplodedPieChart=function(){var e=this.ctx;e.lineWidth=this.pieBorderWidth;var t=0,n=0,r=this.data.length;for(var i=0;i<r;i++){n+=this.data[i];if(this.data[i]<0){return}}if(this.pieTotal==null){t=n}else{t=this.pieTotal}var s=this.width-this.marginLeft-this.marginRight;var o=this.height-this.marginTop-this.marginBottom;if(this.title!=null){o=o-this.titleFontHeight-this.titleMargin}var u=this.width/2;var a=this.marginTop+o/2;if(this.title){a+=this.titleFontHeight+this.titleMargin}var f=2*Math.PI;var l=Math.min(s,o)/2;e.font=this.labelFontStyle+" "+this.labelFontHeight+"px "+this.labelFont;var c=0;var h=0;for(var i=0;i<this.labels.length;i++){h=e.measureText(this.labels[i]).width;if(h>c){c=h}}l=l-c-this.labelMargin;var p=this.pieStart*f/n;var d=0;var v=0;var m=0;var g=0;for(var i=0;i<this.data.length;i++){e.save();v=this.data[i]*f/t;d=p+v;m=v/2;g=p+m;e.translate(u,a);e.rotate(p);e.rotate(m);e.translate(this.explosionOffset,0);e.rotate(-m);e.beginPath();e.moveTo(0,0);e.arc(0,0,l,0,v,false);e.lineTo(0,0);e.save();e.shadowOffsetX=this.pieShadowOffsetX;e.shadowOffsetY=this.pieShadowOffsetY;e.shadowBlur=this.pieShadowBlur;e.shadowColor=this.pieShadowColor;if(this.colors[i]){e.fillStyle=this.colors[i]}else{e.fillStyle=this.pieFillStyle}e.fill();e.restore();e.strokeStyle=this.pieStrokeStyle;e.stroke();e.rotate(m);e.font=this.labelFontStyle+" "+this.labelFontHeight+"px "+this.labelFont;if(this.colors[i]){e.fillStyle=this.colors[i]}else{e.fillStyle=this.labelFillStyle}e.textAlign="start";if(this.labels[i]){if(g>Math.PI/2&&g<=3*(Math.PI/2)){var y=l+this.labelMargin+e.measureText(this.labels[i]).width/2;e.translate(y,0);e.rotate(Math.PI);e.translate(-y,0)}e.textBaseline="middle";e.fillText(this.labels[i],l+this.labelMargin,0)}e.restore();p=d}};this.animatePieChart=function(e){var t=0,n=this.pieTotal,r=this,i=this.animationFrames,s=0,o=this.width-this.marginLeft-this.marginRight,u=this.height-this.marginTop-this.marginBottom,a=this.marginTop,f=this.marginLeft;if(this.title){u=u-this.titleFontHeight-this.titleMargin;a+=this.titleFontHeight+this.titleMargin}for(var l=0;l<this.data.length;l++){t+=this.data[l];if(this.data[l]<0){return}}if(n==null){n=t}var c=function(){if(s++<i){r.ctx.clearRect(0,0,r.width,r.height);r.pieTotal=t*(i/s)*(n/t);if(e=="pie"){r.drawPieChart(false)}else if(e=="ring"){r.drawPieChart(true)}else if(e=="exploded"){r.drawExplodedPieChart()}r.drawTitleAndBorders();if(typeof window.requestAnimationFrame=="function"){window.requestAnimationFrame(c)}else if(typeof window.msRequestAnimationFrame=="function"){window.msRequestAnimationFrame(c)}else if(typeof window.webkitRequestAnimationFrame=="function"){window.webkitRequestAnimationFrame(c)}else if(window.mozRequestAnimationFrame){window.mozRequestAnimationFrame(c)}else{setTimeout(c,16.6666666)}}};c()};this.drawParetoChart=function(){var e=this.ctx;var t=this.data.length;var n=new Array;for(var r=0;r<this.data.length;r++){n.push(r)}n.numericSortReverse(this.data);var i=this.data[n[0]];var s=this.data[n[n.length-1]];var o=0;for(var r=0;r<this.data.length;r++){o+=this.data[n[r]];if(this.data[n[r]]<0){return}}o=o.toFixed(this.numberOfDecimals);var u=new Array;u.push(0);for(var r=1;r<10;r++){u.push((o*r/10).toFixed(this.numberOfDecimals))}u.push(o);e.font=this.yAxisLabelFontStyle+" "+this.yAxisLabelFontHeight+"px "+this.yAxisLabelFont;var a=0;var f=0;for(var r=0;r<u.length;r++){f=e.measureText(u[r]).width;if(f>a){a=f}}var l=e.measureText("100%").width;var c=this.width-this.marginLeft-this.marginRight-2*this.chartMarkerSize-a-l-2*this.yAxisLabelMargin;var h=this.height-this.marginTop-this.marginBottom;var p=this.marginLeft+this.chartMarkerSize+a+this.yAxisLabelMargin;var d=this.marginTop;if(this.title){h-=this.titleFontHeight+this.titleMargin;d+=this.titleFontHeight+this.titleMargin}e.save();e.translate(p,d);e.fillStyle=this.chartBackgroundFillStyle;e.fillRect(0,0,c,h);var v=h/10;var m=0;e.lineWidth=this.chartHorizontalLineWidth;e.font=this.yAxisLabelFontStyle+" "+this.yAxisLabelFontHeight+"px "+this.yAxisLabelFont;for(var r=0;r<=10;r++){m=r*v;if(r>0&&r<10){e.strokeStyle=this.chartHorizontalLineStrokeStyle;e.beginPath();e.moveTo(0,m);e.lineTo(c,m);e.stroke()}e.strokeStyle=this.chartBorderStrokeStyle;e.beginPath();e.moveTo(-this.chartMarkerSize,m);e.lineTo(0,m);e.stroke();e.beginPath();e.moveTo(c,m);e.lineTo(c+this.chartMarkerSize,m);e.stroke();e.fillStyle=this.yAxisLabelFillStyle;e.textAlign="right";e.textBaseline="middle";e.fillText(u[10-r],-this.chartMarkerSize-this.yAxisLabelMargin,m);e.textAlign="left";e.fillText((10-r)*10+"%",c+this.chartMarkerSize+this.yAxisLabelMargin,m)}e.save();e.translate(0,h);var g=(c-2*this.barHGap)/t;var y=0;var b=g/2;var w=0;var E=this.barHGap;var S=E;var x=0;var T=0;var N=0;for(var r=0;r<this.data.length;r++){y=this.data[n[r]]*h/o;if(this.colors[r]){e.fillStyle=this.colors[r]}else{e.fillStyle=this.barFillStyle}e.strokeStyle=this.barStrokeStyle;e.lineWidth=this.barBorderWidth;e.beginPath();e.moveTo(E,w);e.lineTo(E,w-y);e.lineTo(E+g,w-y);e.lineTo(E+g,w);e.save();e.shadowOffsetX=this.barShadowOffsetX;e.shadowOffsetY=this.barShadowOffsetY;e.shadowBlur=this.barShadowBlur;e.shadowColor=this.barShadowColor;e.fill();e.restore();e.stroke();T=S;N=x;S=E+g;x-=y;if(r==this.data.length-1){x=-h}e.strokeStyle=this.chartLineStrokeStyle;e.lineWidth=this.chartLineWidth;e.beginPath();e.moveTo(S,x);e.lineTo(T,N);e.stroke();e.font=this.labelFontStyle+" "+this.labelFontHeight+"px "+this.labelFont;if(this.colors[r]){e.fillStyle=this.colors[r]}else{e.fillStyle=this.labelFillStyle}e.textAlign="center";if(this.labels[n[r]]){if(this.data[n[r]]>=0){e.textBaseline="bottom";e.fillText(this.labels[n[r]],E+b,-y-this.labelMargin,g)}else{e.textBaseline="top";e.fillText(this.labels[n[r]],E+b,-y+this.labelMargin,g)}}e.font=this.dataValueFontStyle+" "+this.dataValueFontHeight+"px "+this.dataValueFont;e.fillStyle=this.dataValueFillStyle;e.textAlign="center";if(this.data[n[r]]>=0){e.textBaseline="bottom";e.fillText(this.data[n[r]],E+b,-y-this.labelMargin-this.dataValueMargin,g)}else{e.textBaseline="top";e.fillText(this.data[n[r]],E+b,-y+this.labelMargin+this.dataValueMargin,g)}E=E+g}E=this.barHGap;S=E;x=0;T=0;N=0;e.fillStyle=this.chartPointFillStyle;e.beginPath();e.arc(S,x,this.chartPointRadius,0,2*Math.PI,false);e.fill();for(var r=0;r<this.data.length;r++){y=this.data[n[r]]*h/o;T=S;N=x;S=E+g;x-=y;if(r==this.data.length-1){x=-h}e.fillStyle=this.chartPointFillStyle;e.beginPath();e.arc(S,x,this.chartPointRadius,0,2*Math.PI,false);e.fill();E=E+g}e.restore();e.lineWidth=this.chartBorderLineWidth;e.strokeStyle=this.chartBorderStrokeStyle;e.strokeRect(0,0,c,h);e.restore()}}Array.prototype.numericSortReverse=function(e){this.sort(function(t,n){return e[n]-e[t]})};Array.prototype.max=function(){var e=this[0];var t=this.length;for(var n=1;n<t;n++){if(this[n]>e){e=this[n]}}return e};Array.prototype.min=function(){var e=this[0];var t=this.length;for(var n=1;n<t;n++){if(this[n]<e){e=this[n]}}return e}
+/*
+*   Copyright 2011 Georgios Migdos
+*
+*   Licensed under the Apache License, Version 2.0 (the "License");
+*   you may not use this file except in compliance with the License.
+*   You may obtain a copy of the License at
+*
+*       http://www.apache.org/licenses/LICENSE-2.0
+*
+*   Unless required by applicable law or agreed to in writing, software
+*   distributed under the License is distributed on an "AS IS" BASIS,
+*   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*   See the License for the specific language governing permissions and
+*   limitations under the License.
+*/
+
+Array.prototype.numericSortReverse = function(data){
+    this.sort(function(a, b){
+        return data[b] - data[a];
+    });
+}
+
+Array.prototype.max = function() {
+    var max = this[0];
+    var len = this.length;
+    for (var i = 1; i < len; i++){
+        if (this[i] > max){
+            max = this[i];
+        }
+    }
+    return max;
+}
+
+Array.prototype.min = function() {
+    var min = this[0];
+    var len = this.length;
+    for (var i = 1; i < len; i++){
+        if (this[i] < min){
+            min = this[i];
+        }
+    }
+    return min;
+}
+
+function AwesomeChart(canvasElementId){
+    var canvas = (typeof canvasElementId === 'string') ? document.getElementById(canvasElementId) : canvasElementId;
+    this.ctx = canvas.getContext('2d');
+    this.width = this.ctx.canvas.width;
+    this.height = this.ctx.canvas.height;
+    
+    this.numberOfDecimals = 0;
+    
+    this.proportionalSizes = true;
+    this.widthSizeFactor = this.width/400;
+    this.heightSizeFactor = this.height/400;
+    
+    this.chartType = 'bar';
+    this.randomColors = false;
+
+    this.animate = false;
+    this.animationFrames = 60;
+    
+    this.marginTop = 10;
+    this.marginBottom = 10;
+    this.marginLeft = 10;
+    this.marginRight = 10;
+    
+    this.labelMargin = 10;
+    this.dataValueMargin = 20;
+    this.titleMargin = 10;
+    this.yAxisLabelMargin = 5;
+    
+    this.data = new Array();
+    this.labels = new Array();
+    this.colors = new Array();
+    this.title = null;
+    
+    this.backgroundFillStyle = 'rgba(255,255,255,0)';
+    this.borderStrokeStyle = 'rgba(255,255,255,0)';
+    this.borderWidth = 1.0;
+    
+    this.labelFillStyle = 'rgb(220, 36, 0)';
+    this.labelFont = 'sans-serif';
+    this.labelFontHeight = 12;
+    this.labelFontStyle = '';
+    
+    this.dataValueFillStyle = '#333';
+    this.dataValueFont = 'sans-serif';
+    this.dataValueFontHeight = 15;
+    this.dataValueFontStyle = '';
+    
+    this.titleFillStyle = '#333';
+    this.titleFont = 'sans-serif';
+    this.titleFontHeight = 16;
+    this.titleFontStyle = 'bold';
+    
+    this.yAxisLabelFillStyle = '#333';
+    this.yAxisLabelFont = 'sans-serif';
+    this.yAxisLabelFontHeight = 10;
+    this.yAxisLabelFontStyle = '';
+    
+    var lingrad = this.ctx.createLinearGradient(0,0,0,this.height);
+    lingrad.addColorStop(0.2, '#fdfdfd');
+    lingrad.addColorStop(0.8, '#ededed');
+    
+    this.chartBackgroundFillStyle = lingrad;
+    this.chartBorderStrokeStyle = '#999';
+    this.chartBorderLineWidth = 1;
+    this.chartHorizontalLineStrokeStyle = '#999';
+    this.chartHorizontalLineWidth = 1;
+    this.chartVerticalLineStrokeStyle = '#999';
+    this.chartVerticalLineWidth = 1;
+    
+    this.chartMarkerSize = 5;
+    
+    this.chartPointRadius = 4;
+    this.chartPointFillStyle = 'rgb(150, 36, 0)';
+    
+    this.chartLineStrokeStyle = 'rgba(150, 36, 0, 0.5)';
+    this.chartLineWidth = 2;
+    
+    this.barFillStyle = 'rgb(220, 36, 0)';
+    this.barStrokeStyle = '#fff';
+    this.barBorderWidth = 2.0;
+    this.barShadowColor = 'rgba(0, 0, 0, 0.5)';
+    this.barShadowBlur = 5;
+    this.barShadowOffsetX = 3.0;
+    this.barShadowOffsetY = 0.0;
+    
+    this.barHGap = 20;
+    this.barVGap = 20;
+    
+    this.explosionOffset = 20;
+
+    this.pieFillStyle = 'rgb(220, 36, 0)';
+    this.pieStrokeStyle = '#fff';
+    this.pieBorderWidth = 2.0;
+    this.pieShadowColor = 'rgba(0, 0, 0, 0.5)';
+    this.pieShadowBlur = 5;
+    this.pieShadowOffsetX = 3.0;
+    this.pieShadowOffsetY = 0.0;
+    
+    this.pieStart = 0;
+    this.pieTotal = null;
+    
+    this.generateRandomColor = function(){
+        var rgb = new Array();
+        for(var i=0; i<3; i++){
+            rgb.push(Math.ceil(Math.random()*150 + 50));
+        }
+        return 'rgb('+rgb.join(",")+')';
+    }
+    
+    /*Set the chart's data in the format: 
+    *
+    *   {
+    *       "label-1": data-value-1,
+    *       "label-2": data-value-2,
+    *       "label-3": data-value-3,
+    *               ....
+    *       "label-N": data-value-N,
+    *   }
+    *
+    */
+    this.setChartDataFromJSON = function(jsonObj){
+       for(var p in jsonObj){
+           this.labels.push(p);
+           this.data.push(jsonObj[p]);
+       }
+    }
+
+
+    this.draw = function(){
+        var context = this.ctx;
+        context.lineCap = 'round';
+        var minFactor = Math.min(this.widthSizeFactor, this.heightSizeFactor);
+        
+        if(this.proportionalSizes){            
+            this.labelMargin = this.labelMargin * this.heightSizeFactor;
+            this.dataValueMargin = this.dataValueMargin * this.heightSizeFactor;
+            this.titleMargin = this.titleMargin * this.heightSizeFactor;
+            this.yAxisLabelMargin = this.yAxisLabelMargin * this.heightSizeFactor;
+            
+            this.labelFontHeight = this.labelFontHeight * minFactor;
+            this.dataValueFontHeight = this.dataValueFontHeight * minFactor;
+            this.titleFontHeight = this.titleFontHeight * minFactor;
+            this.yAxisLabelFontHeight = this.yAxisLabelFontHeight * minFactor;
+            
+            this.barHGap = this.barHGap * this.widthSizeFactor;
+            this.barVGap = this.barHGap * this.heightSizeFactor;
+            this.explosionOffset = this.explosionOffset * minFactor;
+        }
+        
+        if(this.randomColors){
+            for(var i=0; i<this.data.length; i++){
+                if(!this.colors[i]){
+                    this.colors[i] = this.generateRandomColor();
+                }
+            }
+        }
+        
+        if(this.chartType == "pie"){
+            if(this.animate){
+                this.animatePieChart("pie");
+            }else{
+                this.drawPieChart(false);
+            }
+        }else if( (this.chartType == "ring") || (this.chartType == "doughnut")){
+            if(this.animate){
+                this.animatePieChart("ring");
+            }else{
+                this.drawPieChart(true);
+            }
+        }else if(this.chartType == "exploded pie"){
+            if(this.animate){
+                this.animatePieChart("exploded");
+            }else{
+                this.drawExplodedPieChart();
+            }
+        }else if(this.chartType == "horizontal bars"){
+            if(this.animate) {
+                this.animateVerticalBarChart();
+            }else{
+                this.drawVerticalBarChart();
+            }
+        }else if(this.chartType == "pareto"){
+            this.drawParetoChart();
+        }else{
+            if(this.animate) {
+                this.animateBarChart();
+            }else{
+                this.drawBarChart();
+            }
+        }
+
+        this.drawTitleAndBorders();
+        
+    }
+
+
+
+    this.drawTitleAndBorders = function() {
+        var context = this.ctx;
+        
+        if(this.title!=null){
+            //Draw the title:
+            
+            context.font = this.titleFontStyle + ' ' + this.titleFontHeight + 'px '+ this.titleFont;
+            context.fillStyle = this.titleFillStyle;
+            context.textAlign = 'center';
+            context.textBaseline = 'bottom';
+            context.fillText(this.title, this.width/2, this.marginTop+this.titleFontHeight, this.width-10);
+        }
+        
+        //Draw the outer border:
+        
+        context.lineWidth = this.borderWidth;
+        context.strokeStyle = this.borderStrokeStyle;
+        context.strokeRect(0, 0, this.width, this.height);
+        
+        context.globalCompositeOperation = 'destination-over';
+            
+        //Fill the background:
+        
+        context.fillStyle = this.backgroundFillStyle;
+        context.fillRect(0, 0, this.width, this.height);
+        
+        context.globalCompositeOperation = 'source-over';
+    }
+
+
+
+    this.drawBarChart = function(){
+        var context = this.ctx;
+        
+        //Calculate bar size:
+        
+        var n = this.data.length;
+        var maxData = this.data.max();
+        var minData = this.data.min();
+        
+        var barWidth = (this.width - this.marginLeft
+            - this.marginRight - (n-1) * this.barHGap) / n;
+                            
+        var barMaxTopY = this.marginTop + this.labelMargin + this.labelFontHeight + this.dataValueMargin + this.dataValueFontHeight;
+        
+        var barMinTopY = this.height - this.marginBottom;
+        
+        if(this.title!=null){
+            barMaxTopY += this.titleFontHeight + this.titleMargin;
+        }
+        
+        var barBottomY = this.height - this.marginBottom;
+        
+        if(minData<0){
+        
+            barMinTopY = this.height - this.marginBottom - this.labelMargin - this.labelFontHeight - this.dataValueMargin - this.dataValueFontHeight;
+            
+            barBottomY =  barMinTopY + ((this.height - this.marginBottom -  barMaxTopY - this.labelMargin - this.labelFontHeight - this.dataValueMargin - this.dataValueFontHeight) * minData) / (Math.abs(minData)+maxData);
+            
+        }
+        
+        
+        var maxBarHeight = Math.max(Math.abs(barBottomY - barMaxTopY), Math.abs(barBottomY - barMinTopY));
+        var maxBarAbsData = Math.max(Math.abs(minData), Math.abs(maxData));
+        
+        var x = this.marginLeft;
+        var y = barBottomY;
+        var barHeight = 0;
+                
+        var di = 0;
+        for(var i=0; i<this.data.length; i++){
+            di = this.data[i];
+            
+            barHeight = di * maxBarHeight / maxBarAbsData;
+            
+            //Draw the bar:
+            
+            if(this.colors[i]){
+                context.fillStyle = this.colors[i];
+            }else{
+                context.fillStyle = this.barFillStyle;
+            }
+            context.strokeStyle = this.barStrokeStyle;
+            context.lineWidth = this.barBorderWidth;
+            
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(x, y - barHeight);
+            context.lineTo(x + barWidth, y - barHeight);
+            context.lineTo(x + barWidth, y);
+
+            context.save();
+            context.shadowOffsetX = this.barShadowOffsetX;
+            context.shadowOffsetY = this.barShadowOffsetY;
+            context.shadowBlur = this.barShadowBlur;
+            context.shadowColor = this.barShadowColor;
+            
+            context.fill();
+            context.restore();
+            context.stroke();
+            
+            //Draw the label:
+            
+            context.font = this.labelFontStyle + ' ' + this.labelFontHeight + 'px '+ this.labelFont;
+            if(this.colors[i]){
+                context.fillStyle = this.colors[i];
+            }else{
+                context.fillStyle = this.labelFillStyle;
+            }
+            context.textAlign = 'center';
+            if(this.labels[i]){
+                if(di>=0){
+                    context.textBaseline = 'bottom';
+                    context.fillText(this.labels[i], x + barWidth/2, barBottomY - barHeight - this.labelMargin, barWidth);
+                }else{
+                    context.textBaseline = 'top';
+                    context.fillText(this.labels[i], x + barWidth/2, barBottomY - barHeight + this.labelMargin, barWidth);
+                }
+            }
+            
+            //Draw the data value:
+            
+            context.font = this.dataValueFontStyle + ' ' + this.dataValueFontHeight + 'px '+ this.dataValueFont;
+            context.fillStyle = this.dataValueFillStyle;
+            context.textAlign = 'center';
+            if(di>=0){
+                context.textBaseline = 'bottom';
+                context.fillText(di, x + barWidth/2, barBottomY - barHeight - this.labelMargin - this.dataValueMargin, barWidth);
+            }else{
+                context.textBaseline = 'top';
+                context.fillText(di, x + barWidth/2, barBottomY - barHeight + this.labelMargin + this.dataValueMargin, barWidth);
+            }
+            
+            
+            //Update x:
+            
+            x = x + barWidth + this.barHGap;
+        }
+    }
+
+
+
+    this.animateBarChart = function() {
+        var aw = this,
+            numFrames = this.animationFrames,
+            currentFrame = 0,
+            
+            maxData = this.data.max(),
+            minData = this.data.min(),
+            
+            barMaxTopY = this.marginTop + this.labelMargin + this.labelFontHeight + this.dataValueMargin + this.dataValueFontHeight,
+            barMinTopY = barBottomY = this.height - this.marginBottom;
+        
+        if(this.title!=null){
+            barMaxTopY += this.titleFontHeight + this.titleMargin;
+        }
+        
+        if(minData<0){
+            barMinTopY = this.height - this.marginBottom - this.labelMargin - this.labelFontHeight - this.dataValueMargin - this.dataValueFontHeight;
+            
+            barBottomY = barMinTopY + ((this.height - this.marginBottom -  barMaxTopY - this.labelMargin - this.labelFontHeight - this.dataValueMargin - this.dataValueFontHeight) * minData) / (Math.abs(minData)+maxData);
+        }
+        
+        var chartAreaHeight = barMinTopY - barMaxTopY,
+            changeOfMarginBottom = 0,
+            changeOfMarginTop = 0;
+            
+        var belowZeroMaxBarHeight = 0;
+        if(minData<0){
+            var maxBarHeight = Math.max(Math.abs(barBottomY - barMaxTopY), Math.abs(barBottomY - barMinTopY)),
+                maxBarAbsData = Math.max(Math.abs(minData), Math.abs(maxData));
+            belowZeroMaxBarHeight = Math.abs(minData * maxBarHeight / maxBarAbsData + this.labelMargin + this.labelFontHeight);
+        }
+        
+        this.marginBottom += belowZeroMaxBarHeight;
+        if(this.title!=null){
+            this.titleMargin += chartAreaHeight - belowZeroMaxBarHeight;
+        }else{
+            this.marginTop += chartAreaHeight - belowZeroMaxBarHeight;
+        }
+        changeOfMarginBottom = belowZeroMaxBarHeight / numFrames;
+        changeOfMarginTop = (chartAreaHeight - belowZeroMaxBarHeight) / numFrames;
+        
+        var updateBarChart = function() {
+            if(currentFrame++ < numFrames) {
+
+                aw.marginBottom -= changeOfMarginBottom;
+                
+                if(aw.title!=null){
+                    aw.titleMargin -= changeOfMarginTop;
+                }else{
+                    aw.marginTop -= changeOfMarginTop;
+                }
+                
+                aw.ctx.clearRect(0, 0, aw.width, aw.height);
+                aw.drawBarChart();
+                aw.drawTitleAndBorders();                
+                
+                // Standard
+                if (typeof(window.requestAnimationFrame) == 'function') {
+                    window.requestAnimationFrame(updateBarChart);
+
+                // IE 10+
+                } else if (typeof(window.msRequestAnimationFrame) == 'function') {
+                    window.msRequestAnimationFrame(updateBarChart);
+
+                // Chrome
+                } else if (typeof(window.webkitRequestAnimationFrame) == 'function') {
+                    window.webkitRequestAnimationFrame(updateBarChart);
+
+                // Firefox
+                } else if (window.mozRequestAnimationFrame) { // Seems rather slow in FF6 - so disabled
+                    window.mozRequestAnimationFrame(updateBarChart);
+
+                // Default fallback to setTimeout
+                } else {
+                    setTimeout(updateBarChart, 16.6666666);
+                }
+            }
+        }        
+
+        updateBarChart();
+        
+    }
+
+
+
+    this.drawVerticalBarChart = function(){
+        var context = this.ctx;
+
+        context.save();
+        context.translate(this.width/2, this.height/2);
+        context.rotate(Math.PI/2);
+        context.translate(-this.width/2, -this.height/2);
+        
+        //Calculate bar size:
+        
+        var n = this.data.length;
+        var maxData = this.data.max();
+        var minData = this.data.min();
+
+        var marginLeft = this.marginLeft;
+        if(this.title!=null){
+            marginLeft += this.titleFontHeight + this.titleMargin;
+        }
+        
+        var barWidth = (this.width - marginLeft - this.marginRight - (n-1) * this.barHGap) / n;
+
+        context.font = this.labelFontStyle + ' ' + this.labelFontHeight + 'px '+ this.labelFont;
+        var maxLabelWidth = 0;
+        var labelWidth = 0;
+        for(var i=0; i<this.labels.length; i++){
+            labelWidth = context.measureText(this.labels[i]).width;
+            if(labelWidth>maxLabelWidth){
+                maxLabelWidth = labelWidth;
+            }
+        }
+
+        context.font = this.dataValueFontStyle + ' ' + this.dataValueFontHeight + 'px '+ this.dataValueFont;
+        var maxDataValueWidth = 0;
+        var dataValueWidth = 0;
+        for(var i=0; i<this.data.length; i++){
+            dataValueWidth = context.measureText(this.data[i]).width;
+            if(dataValueWidth>maxDataValueWidth){
+                maxDataValueWidth = dataValueWidth;
+            }
+        }
+
+        var barMaxTopY = this.marginTop + Math.max( (this.labelMargin + maxLabelWidth), (this.dataValueMargin + maxDataValueWidth) );
+        
+        var barMinTopY = this.height - this.marginBottom;
+        
+        var barBottomY = this.height - this.marginBottom;
+        
+        if(minData<0){
+        
+            barMinTopY = this.height - this.marginBottom - this.labelMargin - this.labelFontHeight - this.dataValueMargin - this.dataValueFontHeight;
+            
+            barBottomY =  barMinTopY + ((this.height - this.marginBottom -  barMaxTopY - this.labelMargin - this.labelFontHeight - this.dataValueMargin - this.dataValueFontHeight) * minData) / (Math.abs(minData)+maxData);
+            
+        }
+        
+        
+        var maxBarHeight = Math.max(Math.abs(barBottomY - barMaxTopY), Math.abs(barBottomY - barMinTopY));
+        var maxBarAbsData = Math.max(Math.abs(minData), Math.abs(maxData));
+        
+        var x = marginLeft;
+        var y = barBottomY;
+        var barHeight = 0;
+                
+        var di = 0;
+        
+        for(var i=0; i<this.data.length; i++){
+            di = this.data[i];
+            
+            barHeight = di * maxBarHeight / maxBarAbsData;
+            
+            //Draw the bar:
+            
+            if(this.colors[i]){
+                context.fillStyle = this.colors[i];
+            }else{
+                context.fillStyle = this.barFillStyle;
+            }
+            context.strokeStyle = this.barStrokeStyle;
+            context.lineWidth = this.barBorderWidth;
+            
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(x, y - barHeight);
+            context.lineTo(x + barWidth, y - barHeight);
+            context.lineTo(x + barWidth, y);
+
+            context.save();
+            context.shadowOffsetX = this.barShadowOffsetX;
+            context.shadowOffsetY = this.barShadowOffsetY;
+            context.shadowBlur = this.barShadowBlur;
+            context.shadowColor = this.barShadowColor;
+            
+            context.fill();
+            context.restore();
+            context.stroke();
+            
+            //Draw the label:
+            
+            context.font = this.labelFontStyle + ' ' + this.labelFontHeight + 'px '+ this.labelFont;
+            if(this.colors[i]){
+                context.fillStyle = this.colors[i];
+            }else{
+                context.fillStyle = this.labelFillStyle;
+            }
+
+
+            context.save();
+            context.translate(x + barWidth/2, barBottomY - barHeight);
+            context.rotate(-Math.PI/2);
+            context.textBaseline = 'top';
+            if(this.labels[i]){
+                if(di>=0){
+                    context.textAlign = 'left';
+                    context.fillText(this.labels[i], this.labelMargin, 0);
+                }else{
+                    context.textAlign = 'right';
+                    context.fillText(this.labels[i], -this.labelMargin, 0);
+                }
+            }
+
+            //Draw the data value:
+            
+            context.font = this.dataValueFontStyle + ' ' + this.dataValueFontHeight + 'px '+ this.dataValueFont;
+            context.fillStyle = this.dataValueFillStyle;
+            context.textBaseline = 'bottom';
+            if(di>=0){
+                context.textAlign = 'left';
+                context.fillText(di, this.labelMargin, 0);
+            }else{
+                context.textAlign = 'right';
+                context.fillText(di, -this.labelMargin, 0);
+            }
+            
+            context.restore();
+            
+            //Update x:
+            
+            x = x + barWidth + this.barHGap;
+        }
+        
+        context.restore();
+        
+    }
+
+    
+    
+    this.animateVerticalBarChart = function() {
+        var aw = this,
+            numFrames = this.animationFrames,
+            currentFrame = 0,
+            
+            maxData = this.data.max(),
+            minData = this.data.min(),
+            dataLen = this.data.length,
+            
+            context = this.ctx,
+            
+            marginLeft = this.marginLeft
+            marginTop = this.marginTop
+            marginTopCurrent = 0;
+
+
+        if(this.title!=null){
+             marginLeft += this.titleFontHeight + this.titleMargin;
+        }
+        
+        var barWidth = (this.width - marginLeft - this.marginRight - (dataLen-1) * this.barHGap) / dataLen;
+
+        context.font = this.labelFontStyle + ' ' + this.labelFontHeight + 'px '+ this.labelFont;
+        var maxLabelWidth = 0;
+        var labelWidth = 0;
+        for(var i=0; i<this.labels.length; i++){
+            labelWidth = context.measureText(this.labels[i]).width;
+            if(labelWidth>maxLabelWidth){
+                maxLabelWidth = labelWidth;
+            }
+        }
+
+        context.font = this.dataValueFontStyle + ' ' + this.dataValueFontHeight + 'px '+ this.dataValueFont;
+        var maxDataValueWidth = 0;
+        var dataValueWidth = 0;
+        for(var i=0; i<dataLen; i++){
+            dataValueWidth = context.measureText(this.data[i]).width;
+            if(dataValueWidth>maxDataValueWidth){
+                maxDataValueWidth = dataValueWidth;
+            }
+        }
+
+        var barMaxTopY = this.marginTop + Math.max( (this.labelMargin + maxLabelWidth), (this.dataValueMargin + maxDataValueWidth) );
+        
+        var barMinTopY = this.height - this.marginBottom;
+        
+        var barBottomY = this.height - this.marginBottom;
+        
+        if(minData<0){
+        
+            barMinTopY = this.height - this.marginBottom - this.labelMargin - this.labelFontHeight - this.dataValueMargin - this.dataValueFontHeight;
+            
+            barBottomY =  barMinTopY + ((this.height - this.marginBottom -  barMaxTopY - this.labelMargin - this.labelFontHeight - this.dataValueMargin - this.dataValueFontHeight) * minData) / (Math.abs(minData)+maxData);
+            
+        }
+        
+        
+        var maxBarHeight = Math.max(Math.abs(barBottomY - barMaxTopY), Math.abs(barBottomY - barMinTopY));
+        var maxBarAbsData = Math.max(Math.abs(minData), Math.abs(maxData));
+        
+
+        var belowZeroMaxBarHeight = 0;
+        if(minData<0){
+            belowZeroMaxBarHeight = Math.abs(minData * maxBarHeight / maxBarAbsData);
+        }
+        
+        var chartAreaHeight = maxData * maxBarHeight / maxBarAbsData + belowZeroMaxBarHeight,
+            changeOfMarginBottom = 0,
+            changeOfMarginTop = 0;
+        
+        this.marginBottom += belowZeroMaxBarHeight;
+        this.marginTop += chartAreaHeight - belowZeroMaxBarHeight;
+        changeOfMarginBottom = belowZeroMaxBarHeight / numFrames;
+        changeOfMarginTop = (chartAreaHeight - belowZeroMaxBarHeight) / numFrames;
+        
+        var updateVerticalBarChart = function() {
+            if(currentFrame++ < numFrames) {
+
+                aw.marginBottom -= changeOfMarginBottom;
+                aw.marginTop -= changeOfMarginTop;
+                
+                aw.ctx.clearRect(0, 0, aw.width, aw.height);
+                aw.drawVerticalBarChart();
+                
+                marginTopCurrent = aw.marginTop;
+                aw.marginTop = marginTop;
+                aw.drawTitleAndBorders();
+                aw.marginTop = marginTopCurrent;
+                
+                // Standard
+                if (typeof(window.requestAnimationFrame) == 'function') {
+                    window.requestAnimationFrame(updateVerticalBarChart);
+
+                // IE 10+
+                } else if (typeof(window.msRequestAnimationFrame) == 'function') {
+                    window.msRequestAnimationFrame(updateVerticalBarChart);
+
+                // Chrome
+                } else if (typeof(window.webkitRequestAnimationFrame) == 'function') {
+                    window.webkitRequestAnimationFrame(updateVerticalBarChart);
+
+                // Firefox
+                } else if (window.mozRequestAnimationFrame) { // Seems rather slow in FF6 - so disabled
+                    window.mozRequestAnimationFrame(updateVerticalBarChart);
+
+                // Default fallback to setTimeout
+                } else {
+                    setTimeout(updateVerticalBarChart, 16.6666666);
+                }
+            }
+        }        
+
+        updateVerticalBarChart();
+        
+    }
+
+
+
+    this.drawPieChart = function(ring){
+        var context = this.ctx;
+        context.lineWidth = this.pieBorderWidth;
+
+        var dataSum = 0,
+            dataSumForStartAngle = 0,
+            dataLen = this.data.length;
+            
+        for (var i=0; i<dataLen; i++){
+            dataSumForStartAngle += this.data[i];
+            if(this.data[i]<0){
+                return;
+            }
+        }
+        if(this.pieTotal == null){
+            dataSum = dataSumForStartAngle;
+        }else{
+            dataSum = this.pieTotal;
+        }
+
+        var pieAreaWidth = this.width - this.marginLeft - this.marginRight;
+        var pieAreaHeight = this.height - this.marginTop - this.marginBottom;
+        
+        if(this.title){
+            pieAreaHeight = pieAreaHeight - this.titleFontHeight - this.titleMargin;
+        }
+        
+        var centerX = this.width / 2;
+        var centerY = this.marginTop + (pieAreaHeight / 2);
+        
+        if(this.title){
+            centerY += this.titleFontHeight + this.titleMargin;
+        }
+
+        var doublePI = 2 * Math.PI;
+        var radius = (Math.min( pieAreaWidth, pieAreaHeight) / 2);
+        
+        context.font = this.labelFontStyle + ' ' + this.labelFontHeight + 'px '+ this.labelFont;
+        var maxLabelWidth = 0;
+        var labelWidth = 0;
+        for(var i=0; i<this.labels.length; i++){
+            labelWidth = context.measureText(this.labels[i]).width;
+            if(labelWidth>maxLabelWidth){
+                maxLabelWidth = labelWidth;
+            }
+        }
+        
+        radius = radius - maxLabelWidth - this.labelMargin;
+        
+        var startAngle = this.pieStart* doublePI / dataSumForStartAngle;
+        var currentAngle = startAngle;
+        var endAngle = 0;
+        var incAngleBy = 0;
+        
+        for(var i=0; i<dataLen; i++){
+            context.beginPath();
+            incAngleBy = this.data[i] * doublePI / dataSum;
+            endAngle = currentAngle + incAngleBy;
+
+            
+            context.moveTo(centerX, centerY);
+            context.arc(centerX, centerY, radius, currentAngle, endAngle, false);
+            context.lineTo(centerX, centerY);
+
+            currentAngle = endAngle;
+            
+            if(this.colors[i]){
+                context.fillStyle = this.colors[i];
+            }else{
+                context.fillStyle = this.pieFillStyle;
+            }
+            context.fill();
+            
+            context.strokeStyle = this.pieStrokeStyle;
+            context.stroke();
+        }
+        
+        
+        //Draw the outer shadow:
+        
+        context.save();
+        
+        context.shadowOffsetX = this.pieShadowOffsetX;
+        context.shadowOffsetY = this.pieShadowOffsetY;
+        
+        context.translate(centerX, centerY);
+        //context.rotate(this.pieStart* doublePI / dataSum);
+        context.beginPath();
+        context.moveTo(0, 0);
+        context.arc(0, 0, radius, startAngle, endAngle, false);
+        
+        
+        context.shadowBlur = this.pieShadowBlur;
+        context.shadowColor = this.pieShadowColor;
+        context.globalCompositeOperation = 'destination-over';
+        context.fillStyle = 'rgba(0,0,0,1.0)';
+        context.fill();
+
+        context.restore();
+
+        //Ring-charts:
+                
+        if(ring){
+        
+            var ringCenterRadius = radius/2;
+
+            // draw the inner border
+            context.save();
+            context.beginPath();
+            context.moveTo(centerX+ringCenterRadius, centerY);
+            context.arc(centerX, centerY, ringCenterRadius+this.pieBorderWidth, startAngle, endAngle, false);
+            context.fillStyle = this.pieStrokeStyle;
+            context.fill();
+            context.restore();
+        
+            // "cut" the central part:
+            context.save();
+            
+            context.beginPath();
+            context.moveTo(centerX+ringCenterRadius, centerY);
+            context.arc(centerX, centerY, ringCenterRadius, 0, doublePI, false);
+            
+            context.globalCompositeOperation = 'destination-out';
+            context.fillStyle = '#000';
+            context.fill();
+            
+            context.restore();
+            
+            // draw the ring's inner shadow below the ring:
+            context.save();
+        
+            context.shadowOffsetX = this.pieShadowOffsetX;
+            context.shadowOffsetY = this.pieShadowOffsetY;
+            
+            context.translate(centerX, centerY);
+            context.beginPath();
+            context.arc(0, 0, ringCenterRadius, startAngle, endAngle, false);
+            
+            
+            context.shadowBlur = this.pieShadowBlur;
+            context.shadowColor = this.pieShadowColor;
+            context.globalCompositeOperation = 'destination-over';
+            context.strokeStyle = this.pieStrokeStyle;
+            context.stroke();
+
+            context.restore();
+                    
+        }
+        
+        
+        // draw the labels:
+        
+        var currentAngle = this.pieStart* doublePI / dataSumForStartAngle;
+        var endAngle = 0;
+        var incAngleBy = 0;
+        
+        context.beginPath();
+        
+
+        for(var i=0; i<this.data.length; i++){
+            context.save();
+            incAngleBy = this.data[i] * doublePI / dataSum;
+            endAngle = currentAngle + incAngleBy;
+            
+            var mAngle = currentAngle +  incAngleBy/2;
+            context.translate(centerX, centerY);
+            context.rotate(mAngle);
+            
+            context.font = this.labelFontStyle + ' ' + this.labelFontHeight + 'px '+ this.labelFont;
+            if(this.colors[i]){
+                context.fillStyle = this.colors[i];
+            }else{
+                context.fillStyle = this.labelFillStyle;
+            }
+            context.textAlign = 'start';
+            if(this.labels[i]){
+                if( (mAngle>Math.PI/2) && (mAngle<=3*(Math.PI/2)) ){
+                    var translateXBy = radius + this.labelMargin + context.measureText(this.labels[i]).width / 2;
+                    context.translate(translateXBy, 0);
+                    context.rotate(Math.PI);
+                    context.translate(-translateXBy, 0);
+                }
+                context.textBaseline = 'middle';
+                context.fillText(this.labels[i], radius+this.labelMargin, 0);
+            }
+            
+            context.restore();
+            currentAngle = endAngle;
+        }
+    }
+    
+
+    
+    this.drawExplodedPieChart = function(){
+        var context = this.ctx;
+        context.lineWidth = this.pieBorderWidth;
+       
+        var dataSum = 0,
+            dataSumForStartAngle = 0,
+            dataLen = this.data.length;
+            
+        for (var i=0; i<dataLen; i++){
+            dataSumForStartAngle += this.data[i];
+            if(this.data[i]<0){
+                return;
+            }
+        }
+        if(this.pieTotal == null){
+            dataSum = dataSumForStartAngle;
+        }else{
+            dataSum = this.pieTotal;
+        }
+
+        var pieAreaWidth = this.width - this.marginLeft - this.marginRight;
+        var pieAreaHeight = this.height - this.marginTop - this.marginBottom;
+        
+        if(this.title!=null){
+            pieAreaHeight = pieAreaHeight - this.titleFontHeight - this.titleMargin;
+        }
+        
+        var centerX = this.width / 2;
+        var centerY = this.marginTop + (pieAreaHeight / 2);
+        
+        if(this.title){
+            centerY += this.titleFontHeight + this.titleMargin;
+        }
+
+        var doublePI = 2 * Math.PI;
+        var radius = (Math.min( pieAreaWidth, pieAreaHeight) / 2);
+        
+        context.font = this.labelFontStyle + ' ' + this.labelFontHeight + 'px '+ this.labelFont;
+        var maxLabelWidth = 0;
+        var labelWidth = 0;
+        for(var i=0; i<this.labels.length; i++){
+            labelWidth = context.measureText(this.labels[i]).width;
+            if(labelWidth>maxLabelWidth){
+                maxLabelWidth = labelWidth;
+            }
+        }
+        
+        radius = radius - maxLabelWidth - this.labelMargin;
+        
+        var currentAngle = this.pieStart* doublePI / dataSumForStartAngle;
+        var endAngle = 0;
+        var incAngleBy = 0;
+        var halfAngle = 0;
+        var mAngle = 0;
+        for(var i=0; i<this.data.length; i++){
+            
+            context.save();
+            incAngleBy = this.data[i] * doublePI / dataSum;
+            endAngle = currentAngle + incAngleBy;
+            halfAngle = incAngleBy/2;
+            mAngle = currentAngle +  halfAngle;
+            
+            context.translate(centerX, centerY);
+            context.rotate(currentAngle);
+         
+            context.rotate(halfAngle);
+            context.translate(this.explosionOffset,0);
+            context.rotate(-halfAngle);
+            
+            context.beginPath();
+            context.moveTo(0,0);
+            context.arc(0, 0, radius, 0, incAngleBy, false);
+            context.lineTo(0, 0);
+            
+            context.save();
+        
+            context.shadowOffsetX = this.pieShadowOffsetX;
+            context.shadowOffsetY = this.pieShadowOffsetY;
+            context.shadowBlur = this.pieShadowBlur;
+            context.shadowColor = this.pieShadowColor;
+
+            if(this.colors[i]){
+                context.fillStyle = this.colors[i];
+            }else{
+                context.fillStyle = this.pieFillStyle;
+            }
+            context.fill();
+
+            context.restore();
+
+            context.strokeStyle = this.pieStrokeStyle;
+            context.stroke();
+            
+            
+            // Draw the label:
+            
+            context.rotate(halfAngle);
+            
+            context.font = this.labelFontStyle + ' ' + this.labelFontHeight + 'px '+ this.labelFont;
+            if(this.colors[i]){
+                context.fillStyle = this.colors[i];
+            }else{
+                context.fillStyle = this.labelFillStyle;
+            }
+            context.textAlign = 'start';
+            if(this.labels[i]){
+                if( (mAngle>Math.PI/2) && (mAngle<=3*(Math.PI/2)) ){
+                    var translateXBy = radius + this.labelMargin + context.measureText(this.labels[i]).width / 2;
+                    context.translate(translateXBy, 0);
+                    context.rotate(Math.PI);
+                    context.translate(-translateXBy, 0);
+                }
+                context.textBaseline = 'middle';
+                context.fillText(this.labels[i], radius+this.labelMargin, 0);
+            }
+            
+            
+            // Restore the context:
+            
+            context.restore();
+            currentAngle = endAngle;
+            
+        }
+                
+    }
+
+
+    
+    this.animatePieChart = function(pieType){
+        var dataSum = 0,
+            pieTotalReal = this.pieTotal,
+            aw = this,
+            numFrames = this.animationFrames,
+            currentFrame = 0,
+            pieAreaWidth = this.width - this.marginLeft - this.marginRight,
+            pieAreaHeight = this.height - this.marginTop - this.marginBottom,
+            marginTop = this.marginTop,
+            marginLeft = this.marginLeft;
+        
+        if(this.title){
+            pieAreaHeight = pieAreaHeight - this.titleFontHeight - this.titleMargin;
+            marginTop += this.titleFontHeight + this.titleMargin;
+        };
+               
+        for(var i=0; i<this.data.length; i++){
+            dataSum += this.data[i];
+            if(this.data[i]<0){
+                return;
+            }
+        }
+        
+        if(pieTotalReal == null) {
+           pieTotalReal = dataSum;
+        }
+        
+        var updatePieChart = function() {
+            if(currentFrame++ < numFrames) {
+                
+                aw.ctx.clearRect(0, 0, aw.width, aw.height);
+                aw.pieTotal = (dataSum * (numFrames / currentFrame)) * (pieTotalReal / dataSum);
+                if(pieType == "pie") {
+                    aw.drawPieChart(false);
+                }else if(pieType == "ring") {
+                    aw.drawPieChart(true);
+                }else if(pieType == "exploded") {
+                    aw.drawExplodedPieChart();
+                }
+                aw.drawTitleAndBorders();
+                
+                // Standard
+                if (typeof(window.requestAnimationFrame) == 'function') {
+                    window.requestAnimationFrame(updatePieChart);
+
+                // IE 10+
+                } else if (typeof(window.msRequestAnimationFrame) == 'function') {
+                    window.msRequestAnimationFrame(updatePieChart);
+
+                // Chrome
+                } else if (typeof(window.webkitRequestAnimationFrame) == 'function') {
+                    window.webkitRequestAnimationFrame(updatePieChart);
+
+                // Firefox
+                } else if (window.mozRequestAnimationFrame) { // Seems rather slow in FF6 - so disabled
+                    window.mozRequestAnimationFrame(updatePieChart);
+
+                // Default fallback to setTimeout
+                } else {
+                    setTimeout(updatePieChart, 16.6666666);
+                }
+            }
+        }        
+
+        updatePieChart();
+
+    }
+    
+    
+    
+    this.drawParetoChart = function(){
+        var context = this.ctx;
+        
+        var n = this.data.length;
+        
+        var indices = new Array();
+        for (var i = 0; i < this.data.length; i++){
+            indices.push(i);
+        }
+        
+        indices.numericSortReverse(this.data);
+        
+        
+        
+        var maxData = this.data[indices[0]];
+        var minData = this.data[indices[indices.length-1]];
+        
+        var dataSum = 0;
+        for (var i = 0; i < this.data.length; i++){
+            dataSum += this.data[indices[i]];
+            if(this.data[indices[i]]<0){
+                return;
+            }
+        }
+        dataSum = dataSum.toFixed(this.numberOfDecimals);
+        
+        var yAxisValues = new Array();
+        yAxisValues.push(0);
+        for (var i = 1; i < 10; i++){
+            yAxisValues.push((dataSum * i/10).toFixed(this.numberOfDecimals));
+        }
+        yAxisValues.push(dataSum);
+        
+        // Find the widest Y-axis value's width:
+        
+        context.font = this.yAxisLabelFontStyle + ' ' + this.yAxisLabelFontHeight + 'px '+ this.yAxisLabelFont;
+        var maxYAxisLabelWidth = 0;
+        var yAxisLabelWidth = 0;
+        for(var i=0; i<yAxisValues.length; i++){
+            yAxisLabelWidth = context.measureText(yAxisValues[i]).width;
+            if(yAxisLabelWidth>maxYAxisLabelWidth){
+                maxYAxisLabelWidth = yAxisLabelWidth;
+            }
+        }
+        
+        var perCentMaxWidth = context.measureText("100%").width;
+        
+        // Calculate the chart size and position:
+        
+        var chartWidth = this.width - this.marginLeft - this.marginRight - 2*this.chartMarkerSize - maxYAxisLabelWidth - perCentMaxWidth - 2*this.yAxisLabelMargin;
+        var chartHeight = this.height - this.marginTop - this.marginBottom;
+        
+        var chartTopLeftX = this.marginLeft + this.chartMarkerSize + maxYAxisLabelWidth + this.yAxisLabelMargin;
+        var chartTopLeftY = this.marginTop;
+        
+        
+        if(this.title){
+            chartHeight -= this.titleFontHeight + this.titleMargin;
+            chartTopLeftY += this.titleFontHeight + this.titleMargin;
+        }
+        
+        
+        // Draw the chart's background:
+        
+        context.save();
+        
+        context.translate(chartTopLeftX, chartTopLeftY);
+        
+        context.fillStyle = this.chartBackgroundFillStyle;
+        context.fillRect(0,0,chartWidth,chartHeight);
+        
+        
+        // Draw the markers, horizontal lines, and axis' labels:
+        
+        var yStep = chartHeight / 10;
+        var lineY = 0;
+        
+        context.lineWidth = this.chartHorizontalLineWidth;
+        context.font = this.yAxisLabelFontStyle + ' ' + this.yAxisLabelFontHeight + 'px '+ this.yAxisLabelFont;
+        
+        for(var i=0; i<=10; i++){
+            lineY = i*yStep;
+            
+            if( i>0 && i<10){
+            
+                context.strokeStyle = this.chartHorizontalLineStrokeStyle;
+                context.beginPath();
+                context.moveTo(0,lineY);
+                context.lineTo(chartWidth,lineY);
+                context.stroke();
+            
+            }
+            
+            context.strokeStyle = this.chartBorderStrokeStyle;
+            context.beginPath();
+            context.moveTo(-this.chartMarkerSize,lineY);
+            context.lineTo(0,lineY);
+            context.stroke();
+            
+            context.beginPath();
+            context.moveTo(chartWidth,lineY);
+            context.lineTo(chartWidth+this.chartMarkerSize,lineY);
+            context.stroke();
+            
+            context.fillStyle = this.yAxisLabelFillStyle;
+            context.textAlign = 'right';
+            context.textBaseline = 'middle';
+            context.fillText(yAxisValues[10-i], -this.chartMarkerSize-this.yAxisLabelMargin, lineY);
+            
+            context.textAlign = 'left';
+            context.fillText( ((10-i)*10)+'%', chartWidth+this.chartMarkerSize+this.yAxisLabelMargin, lineY);
+        }
+        
+        // Draw the bars:
+        
+        context.save();
+        
+        context.translate(0, chartHeight);
+        
+        var barWidth = (chartWidth-2*this.barHGap) / n;
+        var barHeight = 0;
+        
+        var halfBarWidth = barWidth/2;
+        
+        var y = 0;
+        var x = this.barHGap;
+        var x1 = x;
+        var y1 = 0;
+        var x2 = 0;
+        var y2 = 0;
+        
+        for(var i=0; i<this.data.length; i++){
+            
+            barHeight = this.data[indices[i]] * chartHeight / dataSum;
+            
+            //Draw the bar:
+            
+            if(this.colors[i]){
+                context.fillStyle = this.colors[i];
+            }else{
+                context.fillStyle = this.barFillStyle;
+            }
+            context.strokeStyle = this.barStrokeStyle;
+            context.lineWidth = this.barBorderWidth;
+            
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(x, y - barHeight);
+            context.lineTo(x + barWidth, y - barHeight);
+            context.lineTo(x + barWidth, y);
+
+            context.save();
+            context.shadowOffsetX = this.barShadowOffsetX;
+            context.shadowOffsetY = this.barShadowOffsetY;
+            context.shadowBlur = this.barShadowBlur;
+            context.shadowColor = this.barShadowColor;
+            
+            context.fill();
+            context.restore();
+            context.stroke();
+            
+            
+            // Draw the line:
+            
+            x2 = x1;
+            y2 = y1;
+            x1 = x + barWidth;
+            y1 -= barHeight;
+            if(i==this.data.length - 1){
+                y1 = -chartHeight;
+            }
+            
+            context.strokeStyle = this.chartLineStrokeStyle;
+            context.lineWidth = this.chartLineWidth;
+            context.beginPath();
+            context.moveTo(x1, y1);
+            context.lineTo(x2, y2);
+            context.stroke();
+                        
+            
+            // Draw the label:
+            
+            context.font = this.labelFontStyle + ' ' + this.labelFontHeight + 'px '+ this.labelFont;
+            if(this.colors[i]){
+                context.fillStyle = this.colors[i];
+            }else{
+                context.fillStyle = this.labelFillStyle;
+            }
+            context.textAlign = 'center';
+            if(this.labels[indices[i]]){
+                if(this.data[indices[i]]>=0){
+                    context.textBaseline = 'bottom';
+                    context.fillText(this.labels[indices[i]], x + halfBarWidth, - barHeight - this.labelMargin, barWidth);
+                }else{
+                    context.textBaseline = 'top';
+                    context.fillText(this.labels[indices[i]], x + halfBarWidth, - barHeight + this.labelMargin, barWidth);
+                }
+            }
+            
+            // Draw the data value:
+            
+            context.font = this.dataValueFontStyle + ' ' + this.dataValueFontHeight + 'px '+ this.dataValueFont;
+            context.fillStyle = this.dataValueFillStyle;
+            context.textAlign = 'center';
+            if(this.data[indices[i]]>=0){
+                context.textBaseline = 'bottom';
+                context.fillText(this.data[indices[i]], x + halfBarWidth, - barHeight - this.labelMargin - this.dataValueMargin, barWidth);
+            }else{
+                context.textBaseline = 'top';
+                context.fillText(this.data[indices[i]], x + halfBarWidth, - barHeight + this.labelMargin + this.dataValueMargin, barWidth);
+            }
+            
+            
+            // Update x:
+            
+            x = x + barWidth;
+            
+        }
+        
+        // Draw the points:
+        
+        x = this.barHGap;
+        x1 = x;
+        y1 = 0;
+        x2 = 0;
+        y2 = 0;
+        
+        context.fillStyle = this.chartPointFillStyle;
+        context.beginPath();
+        context.arc(x1, y1, this.chartPointRadius, 0, 2*Math.PI, false);
+        context.fill();
+        
+        for(var i=0; i<this.data.length; i++){
+            barHeight = this.data[indices[i]] * chartHeight / dataSum;
+            x2 = x1;
+            y2 = y1;
+            x1 = x + barWidth;
+            y1 -= barHeight;
+            if(i==this.data.length - 1){
+                y1 = -chartHeight;
+            }
+            
+            context.fillStyle = this.chartPointFillStyle;
+            context.beginPath();
+            context.arc(x1, y1, this.chartPointRadius, 0, 2*Math.PI, false);
+            context.fill();
+            x = x + barWidth;
+        }
+        
+        
+        context.restore();
+        
+        
+        // Draw the chart's border:
+                        
+        context.lineWidth = this.chartBorderLineWidth;
+        context.strokeStyle = this.chartBorderStrokeStyle;
+        context.strokeRect(0,0,chartWidth,chartHeight);
+        
+        
+        
+        context.restore();
+        
+        
+    }
+    
+}
