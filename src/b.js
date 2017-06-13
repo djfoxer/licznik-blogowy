@@ -77,6 +77,7 @@ function GetDataFromProfile(index) {
     linkToSearch = GetBaseUrl(index)
     $.ajax({
         url: linkToSearch,
+        dataType: "html",
         success: function (data) {
             SetInfo("pobieram podstawowe dane ze strony - " + index);
             data = GetHtmlWithoutLodingData(data);
@@ -102,6 +103,7 @@ function GetDataFromPost(index) {
         var currentPost = allPosts[index];
         $.ajax({
             url: currentPost.url,
+            dataType: "html",
             success: function (data) {
                 data = GetHtmlWithoutLodingData(data);
                 data = $(data);
@@ -143,6 +145,7 @@ function GetDataFromBlogPanel(index) {
         currentPost.edit = "https://www.dobreprogramy.pl/Blog,Edycja," + currentPost.id + ".html";
         $.ajax({
             url: currentPost.edit,
+            dataType: "html",
             success: function (data) {
                 data = GetHtmlWithoutLodingData(data);
                 data = $(data);
@@ -308,7 +311,7 @@ function GetBaseUrl(index) {
 
 if ($(".profile-info").length == 1) {
     blogerName = $(".user-info a:first").text();
-    tab = "<div style='padding-top:10px;' class='myPostInfo'><div class='counterX link-color font-heading text-h7' style='text-align:center' ><a href='javascript:void(0)' class='btn'>rozpocznij analizę wpisów blogera " + blogerName + "</a><div class='myInfo' style='padding-top:5px;' ><a href='http://dp.do/81509' class='color-heading text-bold'>stworzone przez: djfoxer [1.2]</a></div></div><div class='myPosts content-list'>"
+    tab = "<div style='padding-top:10px;' class='myPostInfo'><div class='counterX link-color font-heading text-h7' style='text-align:center' ><a href='javascript:void(0)' class='btn'>rozpocznij analizę wpisów blogera " + blogerName + "</a><div class='myInfo' style='padding-top:5px;' ><a href='http://dp.do/81509' class='color-heading text-bold'>stworzone przez: djfoxer [1.3]</a></div></div><div class='myPosts content-list'>"
         + "</div></div>";
     $(".search:eq(0)").append(tab);
 
@@ -322,8 +325,8 @@ else {
 
 
 function GetHtmlWithoutLodingData(rawResponse) {
-    return rawResponse.replace(/<img[^>]*>/g, "");
-
+    var clear = rawResponse.replace(/<img[^>]*>/g, "");
+    return safeResponse.cleanDomString(clear);
 }
 
 
@@ -688,6 +691,58 @@ function ShowChart() {
 
 
 }
+
+safeResponse = function () {
+
+    var validAttrs = ["class", "id", "href", "style"];
+
+    this.__removeInvalidAttributes = function (target) {
+        var attrs = target.attributes, currentAttr;
+
+        for (var i = attrs.length - 1; i >= 0; i--) {
+            currentAttr = attrs[i].name;
+
+            if (attrs[i].specified && validAttrs.indexOf(currentAttr) === -1) {
+                target.removeAttribute(currentAttr);
+            }
+
+            if (
+                currentAttr === "href" &&
+                /^(#|javascript[:])/gi.test(target.getAttribute("href"))
+            ) {
+                target.parentNode.removeChild(target);
+            }
+        }
+    }
+
+    this.__cleanDomString = function (data) {
+        var parser = new DOMParser;
+        var tmpDom = parser.parseFromString(data, "text/html").body;
+
+        var list, current, currentHref;
+
+        list = tmpDom.querySelectorAll("script,img");
+
+        for (var i = list.length - 1; i >= 0; i--) {
+            current = list[i];
+            current.parentNode.removeChild(current);
+        }
+
+        list = tmpDom.getElementsByTagName("*");
+
+        for (i = list.length - 1; i >= 0; i--) {
+            parent.__removeInvalidAttributes(list[i]);
+        }
+
+        return tmpDom.innerHTML;
+    }
+
+    return {
+        cleanDomString: function (html) {
+            return parent.__cleanDomString(html)
+        }
+    }
+}();
 
 
 
