@@ -311,7 +311,7 @@ function GetBaseUrl(index) {
 
 if ($(".profile-info").length == 1) {
     blogerName = $(".user-info a:first").text();
-    tab = "<div style='padding-top:10px;' class='myPostInfo'><div class='counterX link-color font-heading text-h7' style='text-align:center' ><a href='javascript:void(0)' class='btn'>rozpocznij analizę wpisów blogera " + blogerName + "</a><div class='myInfo' style='padding-top:5px;' ><a href='http://dp.do/81509' class='color-heading text-bold'>stworzone przez: djfoxer [1.3]</a></div></div><div class='myPosts content-list'>"
+    tab = "<div style='padding-top:10px;' class='myPostInfo'><div class='counterX link-color font-heading text-h7' style='text-align:center' ><a href='javascript:void(0)' class='btn'>rozpocznij analizę wpisów blogera " + blogerName + "</a><div class='myInfo' style='padding-top:5px;' ><a href='http://dp.do/81509' class='color-heading text-bold'>stworzone przez: djfoxer [1.4]</a></div></div><div class='myPosts content-list'>"
         + "</div></div>";
     $(".search:eq(0)").append(tab);
 
@@ -515,7 +515,7 @@ function ShowChart() {
 
 
     var chart4 = new AwesomeChart('canvas6');
-    chart4.title = "Ilość komentarzy - godzinowo";
+    chart4.title = "Liczba komentarzy - godzinowo";
     chart4.data = hoursCom;
     chart4.chartType = 'default';
     chart4.randomColors = true;
@@ -555,14 +555,14 @@ function ShowChart() {
 
     $("#content .DivCharts").prepend("<canvas id='canvas9' width='629' height='400'></canvas>");
     var chart2 = new AwesomeChart('canvas9');
-    chart2.title = "Ilość komentarzy - dzień tygodnia";
+    chart2.title = "Liczba komentarzy - dzień tygodnia";
     chart2.data = tabDayComments;
     chart2.chartType = 'default';
     chart2.randomColors = true;
     chart2.animate = true;
     chart2.randomColors = true;
     chart2.animationFrames = 60;
-    chart2.labels = ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota", "Niedziela"];;
+    chart2.labels = ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"];
     chart2.draw();
 
 
@@ -570,7 +570,7 @@ function ShowChart() {
 
     $("#content .DivCharts").prepend("<canvas id='canvas10' width='629' height='400'></canvas>");
     var chart5 = new AwesomeChart('canvas10');
-    chart5.title = "Ilość komentarzy - miesięcznie";
+    chart5.title = "Liczba komentarzy - miesięcznie";
     chart5.data = tabMonthComments;
     chart5.chartType = 'default';
     chart5.randomColors = true;
@@ -583,7 +583,7 @@ function ShowChart() {
     $("#content .DivCharts").prepend("<canvas id='canvas11' width='629' height='400'></canvas>");
 
     var chart3 = new AwesomeChart('canvas11');
-    chart3.title = "Ilość komentarzy - rocznie";
+    chart3.title = "Liczba komentarzy - rocznie";
     chart3.data = year_countComments;
     chart3.chartType = 'default';
     chart3.randomColors = true;
@@ -605,7 +605,7 @@ function ShowChart() {
     $("#content .DivCharts").prepend("<canvas id='canvas12' width='629' height='400'></canvas>");
 
     var chart3 = new AwesomeChart('canvas12');
-    chart3.title = "Średnia ilość komentarzy na wpis rocznie";
+    chart3.title = "Średnia liczba komentarzy na wpis rocznie";
     chart3.data = year_countPostComments;
     chart3.chartType = 'default';
     chart3.randomColors = true;
@@ -621,7 +621,7 @@ function ShowChart() {
 
 
     var chart4 = new AwesomeChart('canvas4');
-    chart4.title = "Ilość wpisów - godzinowo";
+    chart4.title = "Liczba wpisów - godzinowo";
     chart4.data = hours;
     chart4.chartType = 'default';
     chart4.randomColors = true;
@@ -633,20 +633,20 @@ function ShowChart() {
 
     $("#content  .DivCharts").prepend("<canvas id='canvas1' width='629' height='400'></canvas>");
     var chart1 = new AwesomeChart('canvas1');
-    chart1.title = "Ilość wpisów - dzień tygodnia";
+    chart1.title = "Liczba wpisów - dzień tygodnia";
     chart1.data = tabDay;
     chart1.chartType = 'default';
     chart1.randomColors = true;
     chart1.animate = true;
     chart1.randomColors = true;
     chart1.animationFrames = 60;
-    chart1.labels = ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota", "Niedziela"];
+    chart1.labels = ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"];
     chart1.draw();
 
 
     $("#content .DivCharts").prepend("<canvas id='canvas5' width='629' height='400'></canvas>");
     var chart5 = new AwesomeChart('canvas5');
-    chart5.title = "Ilość wpisów - miesięcznie";
+    chart5.title = "Liczba wpisów - miesięcznie";
     chart5.data = tabMonth;
     chart5.chartType = 'default';
     chart5.randomColors = true;
@@ -659,7 +659,7 @@ function ShowChart() {
     $("#content .DivCharts").prepend("<canvas id='canvas3' width='629' height='400'></canvas>");
 
     var chart3 = new AwesomeChart('canvas3');
-    chart3.title = "Ilość wpisów - rocznie";
+    chart3.title = "Liczba wpisów - rocznie";
     chart3.data = year_count;
     chart3.chartType = 'default';
     chart3.randomColors = true;
@@ -676,7 +676,7 @@ function ShowChart() {
 
 
         var chart2 = new AwesomeChart('canvas2');
-        chart2.title = "Ilość wpisów na głównej";
+        chart2.title = "Liczba wpisów na głównej";
         chart2.data = [chartMain, 100 - chartMain];
         chart2.chartType = 'exploded pie';
         chart2.randomColors = true;
@@ -731,7 +731,7 @@ safeResponse = function () {
         list = tmpDom.getElementsByTagName("*");
 
         for (i = list.length - 1; i >= 0; i--) {
-            parent.__removeInvalidAttributes(list[i]);
+            __removeInvalidAttributes(list[i]);
         }
 
         return tmpDom.innerHTML;
@@ -739,7 +739,7 @@ safeResponse = function () {
 
     return {
         cleanDomString: function (html) {
-            return parent.__cleanDomString(html)
+            return __cleanDomString(html)
         }
     }
 }();
