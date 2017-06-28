@@ -83,7 +83,8 @@ function GetDataFromProfile(index) {
             data = GetHtmlWithoutLodingData(data);
             data = $(data);
             data.find("#content article > header > h1 > a").map(function () { return $(this).attr("href") }).each(function (i, link) {
-                id = link.split(",")[1].split(".")[0];
+				var tab = link.split(",");
+                id = tab[tab.length-1].split(".")[0];
                 allPosts.push(new Post(null, link, 0, null, false, null, null, 0, id));
             });
 
@@ -311,7 +312,7 @@ function GetBaseUrl(index) {
 
 if ($(".profile-info").length == 1) {
     blogerName = $(".user-info a:first").text();
-    tab = "<div style='padding-top:10px;' class='myPostInfo'><div class='counterX link-color font-heading text-h7' style='text-align:center' ><a href='javascript:void(0)' class='btn'>rozpocznij analizę wpisów blogera " + blogerName + "</a><div class='myInfo' style='padding-top:5px;' ><a href='http://dp.do/81509' class='color-heading text-bold'>stworzone przez: djfoxer [1.4]</a></div></div><div class='myPosts content-list'>"
+    tab = "<div style='padding-top:10px;' class='myPostInfo'><div class='counterX link-color font-heading text-h7' style='text-align:center' ><a href='javascript:void(0)' class='btn'>rozpocznij analizę wpisów blogera " + blogerName + "</a><div class='myInfo' style='padding-top:5px;' ><a href='http://dp.do/81509' class='color-heading text-bold'>stworzone przez: djfoxer [1.5]</a></div></div><div class='myPosts content-list'>"
         + "</div></div>";
     $(".search:eq(0)").append(tab);
 
