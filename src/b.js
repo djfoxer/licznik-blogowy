@@ -305,7 +305,7 @@ var baseBlogUrl = $(".user-info a:first").attr("href");
 function GetBaseUrl(index) {
     var sufix = ",Uzytkownik.html";
     if (baseBlogUrl.endsWith(sufix)) {
-        return baseBlogUrl.replace(sufix, index + "," + sufix);
+         return baseBlogUrl.replace(sufix,",Blog,"+index+".html");
     }
     else {
         return baseBlogUrl + "," + index;
@@ -315,7 +315,7 @@ function GetBaseUrl(index) {
 
 if ($(".profile-info").length == 1) {
     blogerName = $(".user-info a:first").text();
-    tab = "<div style='padding-top:10px;' class='myPostInfo'><div class='counterX link-color font-heading text-h7' style='text-align:center' ><a href='javascript:void(0)' class='btn'>rozpocznij analizę wpisów blogera " + blogerName + "</a><div class='myInfo' style='padding-top:5px;' ><a href='http://dp.do/81509' class='color-heading text-bold'>stworzone przez: djfoxer [1.6]</a></div></div><div class='myPosts content-list'>"
+    tab = "<div style='padding-top:10px;' class='myPostInfo'><div class='counterX link-color font-heading text-h7' style='text-align:center' ><a href='javascript:void(0)' class='btn'>rozpocznij analizę wpisów blogera " + blogerName + "</a><div class='myInfo' style='padding-top:5px;' ><a href='http://dp.do/81509' class='color-heading text-bold'>stworzone przez: djfoxer [1.7]</a></div></div><div class='myPosts content-list'>"
         + "</div></div>";
     $(".search:eq(0)").append(tab);
 
