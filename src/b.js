@@ -15,11 +15,13 @@
 
 
 
-function Comment(author, date, likes) {
+function Comment(author, date, likes, ano) {
     this.author = author;
     this.date = date;
     this.likes = likes;
+    this.ano = ano;
 }
+
 
 function PostSort(type, a, b) {
     if (type == "date") {
@@ -83,8 +85,8 @@ function GetDataFromProfile(index) {
             data = GetHtmlWithoutLodingData(data);
             data = $(data);
             data.find("#content article > header > h1 > a").map(function () { return $(this).attr("href") }).each(function (i, link) {
-				var tab = link.split(",");
-                id = tab[tab.length-1].split(".")[0];
+                var tab = link.split(",");
+                id = tab[tab.length - 1].split(".")[0];
                 allPosts.push(new Post(null, link, 0, null, false, null, null, 0, id));
             });
 
@@ -111,7 +113,8 @@ function GetDataFromPost(index) {
                 data.find("#komentarze section").each(function (i, elem) {
                     currentPost.commentList.push(new Comment($(elem).find("header :first-child").text(),
                         ParseDate($(elem).find("header span:last").text()),
-                        $(elem).find("footer span").text() * 1
+                        $(elem).find("footer span").text() * 1,
+                        $(elem).find("header :first-child")[0].tagName == "SPAN"
                     ))
                 })
                 currentPost.date = data.find(".content-info:first time").text();
@@ -166,7 +169,7 @@ function GetDataFromBlogPanel(index) {
 function DrawData() {
     SetInfo("gotowe...");
     allPosts = allPosts.sort(function (a, b) { return PostSort("comments", a, b); });
-    tab = "<div class='post-sort-info section-title color-heading font-heading text-h45'>Wpisy wg " + (isYourProfile ? "ilości wyświetleń" : "ilości komentarzy") + "</div><div class='content-list XX'>";
+    tab = "<div class='post-sort-info section-title color-heading font-heading text-h45'>Wpisy wg " + (isYourProfile ? "liczby wyświetleń" : "liczby komentarzy") + "</div><div class='content-list XX'>";
 
     for (var i = 0; i < (allPosts.length < 10 ? allPosts.length : 10); i++) {
         tab += AddPostInfo(i);
@@ -182,9 +185,9 @@ function DrawData() {
         + "Sortuj wpisy wg:</div>"
         + "<ul style='display:none'>"
         + "<li " + HideIfNotYourProfile() + "><a href='javascript:void(0)' data-sort='counter' class='text-h5 color-content'>"
-        + "ilości wyświetleń</a></li>"
+        + "liczby wyświetleń</a></li>"
         + "<li><a href='javascript:void(0)' data-sort='comments' class='text-h5 color-content'>"
-        + "ilości komentarzy</a></li>"
+        + "liczby komentarzy</a></li>"
         + "<li><a href='javascript:void(0)' data-sort='date' class='text-h5 color-content'>"
         + "daty publikacji</a></li>"
         + "<li " + HideIfNotYourProfile() + "><a href='javascript:void(0)' data-sort='info' class='text-h5 color-content'>"
@@ -312,7 +315,7 @@ function GetBaseUrl(index) {
 
 if ($(".profile-info").length == 1) {
     blogerName = $(".user-info a:first").text();
-    tab = "<div style='padding-top:10px;' class='myPostInfo'><div class='counterX link-color font-heading text-h7' style='text-align:center' ><a href='javascript:void(0)' class='btn'>rozpocznij analizę wpisów blogera " + blogerName + "</a><div class='myInfo' style='padding-top:5px;' ><a href='http://dp.do/81509' class='color-heading text-bold'>stworzone przez: djfoxer [1.5]</a></div></div><div class='myPosts content-list'>"
+    tab = "<div style='padding-top:10px;' class='myPostInfo'><div class='counterX link-color font-heading text-h7' style='text-align:center' ><a href='javascript:void(0)' class='btn'>rozpocznij analizę wpisów blogera " + blogerName + "</a><div class='myInfo' style='padding-top:5px;' ><a href='http://dp.do/81509' class='color-heading text-bold'>stworzone przez: djfoxer [1.6]</a></div></div><div class='myPosts content-list'>"
         + "</div></div>";
     $(".search:eq(0)").append(tab);
 
@@ -354,7 +357,80 @@ function HideChart() {
     $(".BtnCharrtsMagicOMG a").text("pokaż wykresy");
 }
 
+var randomColorGenerator = function () {
+    return '#' + (Math.random().toString(16) + '0000000').slice(2, 8);
+};
 
+var rgb2hex = function (red, green, blue) {
+    var rgb = blue | (green << 8) | (red << 16);
+    return '#' + (0x1000000 + rgb).toString(16).slice(1)
+}
+
+var rgb2hexFormat = function (text, alfa) {
+    return "rgba(" + text.split(',')[0].split('(')[1] * 1 + "," + text.split(',')[1] * 1 + "," + text.split(',')[2] * 1 + "," + alfa + ")";
+}
+
+
+var mainHex = "";
+
+var scales = {
+    xAxes: [{
+        ticks: {
+            autoSkip: false,
+        }
+    }],
+    yAxes: [{
+        ticks: {
+            min: 0
+        }
+    }]
+};
+
+var drawChart = function (title, labels, data, canvas) {
+
+
+    new Chart(canvas, {
+        type: 'bar',
+        options: {
+            title: {
+                text: title
+            },
+            scales: scales,
+        },
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: mainHex,
+                borderWidth: 1
+            }]
+        }
+    });
+}
+
+var drawChart2 = function (title, labels, data, canvas) {
+
+    mainHex1 = rgb2hexFormat(mainColor, "0.7");
+    mainHex2 = rgb2hexFormat(mainColor, "0.3");
+
+    new Chart(canvas, {
+        type: 'pie',
+        options: {
+            title: {
+                text: title
+            },
+            scales: scales,
+        },
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: [mainHex1, mainHex2],
+                borderWidth: 1
+            }]
+        }
+    });
+}
 
 function ShowChart() {
     window.scrollTo(0, 0);
@@ -409,6 +485,7 @@ function ShowChart() {
     other = 0;
 
     comUsers = {};
+    comUserAno = { author: "NIEZALOGOWANY", counter: 0, likes: 0 };
     comUsersName = [];
     comUsersValue = [];
 
@@ -439,7 +516,8 @@ function ShowChart() {
 
         if (allPosts[i].comments) {
             for (var index = 0; index < allPosts[i].commentList.length; index++) {
-                h = parseInt(allPosts[i].commentList[index].date.getHours());
+                currentComment = allPosts[i].commentList[index];
+                h = parseInt(currentComment.date.getHours());
                 if (h >= 0 && h < 6)
                     hoursCom[0] += 1;
                 else if (h >= 6 && h < 12)
@@ -449,12 +527,19 @@ function ShowChart() {
                 else if (h >= 18)
                     hoursCom[3] += 1;
 
-                if (!comUsers[allPosts[i].commentList[index].author]) {
-                    comUsers[allPosts[i].commentList[index].author] = { author: allPosts[i].commentList[index].author, counter: 0, likes: 0 };
+                if (currentComment.ano === true) {
+                    comUserAno.counter += 1;
+                    comUserAno.likes += currentComment.likes;
                 }
-                comUsers[allPosts[i].commentList[index].author].counter += 1;
-                comUsers[allPosts[i].commentList[index].author].likes += allPosts[i].commentList[index].likes;
-                commDate = allPosts[i].commentList[index].date;
+                else {
+                    if (!comUsers[currentComment.author]) {
+                        comUsers[currentComment.author] = { author: currentComment.author, counter: 0, likes: 0 };
+                    }
+                    comUsers[currentComment.author].counter += 1;
+                    comUsers[currentComment.author].likes += currentComment.likes;
+                }
+
+                commDate = currentComment.date;
                 tabDayComments[commDate.getDay()] += 1;
                 tabMonthComments[commDate.getMonth()] += 1;
 
@@ -507,92 +592,34 @@ function ShowChart() {
         }
     }
 
-    chartMain = (main / (other + main)) * 100
+    chartMain = (main / (other + main)) * 100;
+
     $("#content").prepend("<div class='DivCharts'></div>");
 
+    Chart.defaults.global.legend.display = false;
+    Chart.defaults.global.title.display = true;
+    mainHex = rgb2hexFormat(mainColor, "0.5");
 
     $("#content .DivCharts").prepend("<canvas id='canvas6' width='629' height='400'></canvas>");
-
-
-
-    var chart4 = new AwesomeChart('canvas6');
-    chart4.title = "Liczba komentarzy - godzinowo";
-    chart4.data = hoursCom;
-    chart4.chartType = 'default';
-    chart4.randomColors = true;
-    chart4.animate = true;
-    chart4.randomColors = true;
-    chart4.animationFrames = 60;
-    chart4.labels = hoursName;
-    chart4.draw();
+    drawChart('Liczba komentarzy - godzinowo', hoursName, hoursCom, "canvas6");
 
     $("#content .DivCharts").prepend("<canvas id='canvas7' width='629' height='400'></canvas>");
+    drawChart("Top 10 komentujących wg liczby komentarzy (twoich: " + userComments + ", niezalogowanych: " + comUserAno.counter + ")", comUsersName, comUsersValue, "canvas7");
 
-
-
-    var chart2 = new AwesomeChart('canvas7');
-    chart2.title = "Top 10 komentujących wg ilośc komentarzy (twoich komentarzy: " + userComments + ")";
-    chart2.data = comUsersValue;
-    chart2.chartType = 'default';
-    chart2.randomColors = true;
-    chart2.animate = true;
-    chart2.randomColors = true;
-    chart2.animationFrames = 60;
-    chart2.labels = comUsersName;
-    chart2.draw();
 
     $("#content .DivCharts").prepend("<canvas id='canvas8' width='629' height='400'></canvas>");
-    var chart2 = new AwesomeChart('canvas8');
-    chart2.title = "Top 10 komentujacych wg Like'ów";
-    chart2.data = likesValues;
-    chart2.chartType = 'default';
-    chart2.randomColors = true;
-    chart2.animate = true;
-    chart2.randomColors = true;
-    chart2.animationFrames = 60;
-    chart2.labels = likesName;
-    chart2.draw();
+    drawChart("Top 10 komentujacych wg Like'ów", likesName, likesValues, "canvas8");
 
 
     $("#content .DivCharts").prepend("<canvas id='canvas9' width='629' height='400'></canvas>");
-    var chart2 = new AwesomeChart('canvas9');
-    chart2.title = "Liczba komentarzy - dzień tygodnia";
-    chart2.data = tabDayComments;
-    chart2.chartType = 'default';
-    chart2.randomColors = true;
-    chart2.animate = true;
-    chart2.randomColors = true;
-    chart2.animationFrames = 60;
-    chart2.labels = ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"];
-    chart2.draw();
-
-
-
+    drawChart("Liczba komentarzy - dzień tygodnia", ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"], tabDayComments, "canvas9");
 
     $("#content .DivCharts").prepend("<canvas id='canvas10' width='629' height='400'></canvas>");
-    var chart5 = new AwesomeChart('canvas10');
-    chart5.title = "Liczba komentarzy - miesięcznie";
-    chart5.data = tabMonthComments;
-    chart5.chartType = 'default';
-    chart5.randomColors = true;
-    chart5.animate = true;
-    chart5.randomColors = true;
-    chart5.animationFrames = 60;
-    chart5.labels = ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"];
-    chart5.draw();
+    drawChart("Liczba komentarzy - miesięcznie", ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"],
+        tabMonthComments, "canvas10");
 
     $("#content .DivCharts").prepend("<canvas id='canvas11' width='629' height='400'></canvas>");
-
-    var chart3 = new AwesomeChart('canvas11');
-    chart3.title = "Liczba komentarzy - rocznie";
-    chart3.data = year_countComments;
-    chart3.chartType = 'default';
-    chart3.randomColors = true;
-    chart3.animate = true;
-    chart3.randomColors = true;
-    chart3.animationFrames = 60;
-    chart3.labels = year_nameComments;
-    chart3.draw();
+    drawChart("Liczba komentarzy - rocznie", year_nameComments, year_countComments, "canvas11");
 
     var year_countPostComments = year_countComments.slice();
     for (var index = 0; index < year_countPostComments.length; index++) {
@@ -604,88 +631,34 @@ function ShowChart() {
 
 
     $("#content .DivCharts").prepend("<canvas id='canvas12' width='629' height='400'></canvas>");
+    drawChart("Średnia liczba komentarzy na wpis rocznie", year_nameComments, year_countPostComments, "canvas12");
 
-    var chart3 = new AwesomeChart('canvas12');
-    chart3.title = "Średnia liczba komentarzy na wpis rocznie";
-    chart3.data = year_countPostComments;
-    chart3.chartType = 'default';
-    chart3.randomColors = true;
-    chart3.animate = true;
-    chart3.randomColors = true;
-    chart3.animationFrames = 60;
-    chart3.labels = year_nameComments;
-    chart3.draw();
 
 
     $("#content .DivCharts").prepend("<canvas id='canvas4' width='629' height='400'></canvas>");
+    drawChart("Liczba wpisów - godzinowo", hoursName, hours, "canvas4");
 
-
-
-    var chart4 = new AwesomeChart('canvas4');
-    chart4.title = "Liczba wpisów - godzinowo";
-    chart4.data = hours;
-    chart4.chartType = 'default';
-    chart4.randomColors = true;
-    chart4.animate = true;
-    chart4.randomColors = true;
-    chart4.animationFrames = 60;
-    chart4.labels = hoursName;
-    chart4.draw();
 
     $("#content  .DivCharts").prepend("<canvas id='canvas1' width='629' height='400'></canvas>");
-    var chart1 = new AwesomeChart('canvas1');
-    chart1.title = "Liczba wpisów - dzień tygodnia";
-    chart1.data = tabDay;
-    chart1.chartType = 'default';
-    chart1.randomColors = true;
-    chart1.animate = true;
-    chart1.randomColors = true;
-    chart1.animationFrames = 60;
-    chart1.labels = ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"];
-    chart1.draw();
+    drawChart("Liczba wpisów - dzień tygodnia", ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"], tabDay, "canvas1");
+
 
 
     $("#content .DivCharts").prepend("<canvas id='canvas5' width='629' height='400'></canvas>");
-    var chart5 = new AwesomeChart('canvas5');
-    chart5.title = "Liczba wpisów - miesięcznie";
-    chart5.data = tabMonth;
-    chart5.chartType = 'default';
-    chart5.randomColors = true;
-    chart5.animate = true;
-    chart5.randomColors = true;
-    chart5.animationFrames = 60;
-    chart5.labels = ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"];
-    chart5.draw();
+    drawChart("Liczba wpisów - miesięcznie", ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"],
+        tabMonth, "canvas5");
+
 
     $("#content .DivCharts").prepend("<canvas id='canvas3' width='629' height='400'></canvas>");
-
-    var chart3 = new AwesomeChart('canvas3');
-    chart3.title = "Liczba wpisów - rocznie";
-    chart3.data = year_count;
-    chart3.chartType = 'default';
-    chart3.randomColors = true;
-    chart3.animate = true;
-    chart3.randomColors = true;
-    chart3.animationFrames = 60;
-    chart3.labels = year_name;
-    chart3.draw();
+    drawChart("Liczba wpisów - rocznie", year_name, year_count, "canvas3");
 
     if (isYourProfile) {
 
+
         $("#content .DivCharts").prepend("<canvas id='canvas2' width='629' height='400'></canvas>");
 
+        drawChart2("Liczba wpisów na głównej", ["Główna - " + main, "\"Pozostałe\" - " + other], [chartMain, 100 - chartMain], "canvas2");
 
-
-        var chart2 = new AwesomeChart('canvas2');
-        chart2.title = "Liczba wpisów na głównej";
-        chart2.data = [chartMain, 100 - chartMain];
-        chart2.chartType = 'exploded pie';
-        chart2.randomColors = true;
-        chart2.animate = true;
-        chart2.randomColors = true;
-        chart2.animationFrames = 60;
-        chart2.labels = ["Główna - " + main, "\"Pozostałe\" - " + other];
-        chart2.draw();
 
 
     }

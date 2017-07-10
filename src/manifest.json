@@ -1,6 +1,6 @@
 ﻿{
   "name": "Licznik Blogowy dobreprogramy",
-  "version": "1.5",
+  "version": "1.6.1",
   "description": "Wtyczka pozwoli na szczegółową analizę statystyk każdego bloga na portalu dobreprogramy.pl.",
   "manifest_version": 2,
   "browser_action": {
@@ -14,7 +14,7 @@
   "content_scripts": [
     {
       "matches": ["https://www.dobreprogramy.pl/*"],
-      "js": ["jquery.min.js","awesomechart.js", "b.js"]
+      "js": ["jquery.min.js","Chart.js", "b.js"]
     }
   ],
   "permissions": [
