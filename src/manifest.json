@@ -36,7 +36,7 @@
   ],
   "permissions": [
     "https://www.dobreprogramy.pl/*",
-    "http://dp.do/*"
+    "https://dp.do/*"
   ],
   "homepage_url": "https://www.dobreprogramy.pl/djfoxer"
 }

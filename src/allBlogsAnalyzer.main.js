@@ -8,7 +8,7 @@ function SetMainBlogStatButton() {
         + "<div class='counterX link-color font-heading text-h7' style='text-align:center' >"
         + "<input type='month' id='blogMonth' name='blogMonth' style='text-align: right;' max=" + maxDate.getFullYear() + "-" + maxMonth + " value=" + new Date().getFullYear() + "-" + month + ">"
         + "<a style='margin-top:5px;' href='javascript:void(0)' class='btn'>rozpocznij analizę wpisów z danego okresu</a>"
-        + "<div class='allInfo' style='padding-top:5px;' ><a href='http://dp.do/81509' class='color-heading text-bold'>stworzone przez: djfoxer [3.0]</a></div></div><div class='allBlogsListContent content-list'>"
+        + "<div class='allInfo' style='padding-top:5px;' ><a href='https://dp.do/106860' class='color-heading text-bold'>stworzone przez: djfoxer [3.0]</a></div></div><div class='allBlogsListContent content-list'>"
         + "</div></div>";
     allBlogsButton += "<div style='padding-top:10px;padding-bottom:10px;'><div class='counterX link-color font-heading text-h7' style='text-align:center' ><label class='allBlogsInfoText'></label></div></div>"
     $(".search").prepend(allBlogsButton);
