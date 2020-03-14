@@ -22,11 +22,15 @@
         "datatables.min.js",
         "Chart.js",
         "underscore-min.js",
-        "b.js"
+        "common.js",
+        "singleBloggerAnalyzer.main.js",
+        "singleBloggerAnalyzer.chart.js",
+        "allBlogsAnalyzer.main.js",
+        "start.js"
       ],
       "css": [
         "datatables.min.css",
-        "b.css"
+        "allBlogsAnalyzer.main.css"
       ]
     }
   ],
