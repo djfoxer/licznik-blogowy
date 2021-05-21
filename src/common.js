@@ -1,12 +1,12 @@
 function Post(name, url, counter, date, info, edit, comments, status, id, author) {
     this.name = name;
     this.url = url;
-    this.counter = parseInt(counter);
+    this.counter = counter;
     this.date = date;
-    this.realDate = ParseDate(date);
+    this.realDate = date;
     this.info = info;
     this.edit = url;
-    this.comments = parseInt(comments);
+    this.comments = comments;
     this.status = status;
     this.commentList = new Array();
     this.id = id;

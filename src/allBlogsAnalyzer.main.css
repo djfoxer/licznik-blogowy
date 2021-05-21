@@ -1,11 +1,11 @@
 .dataTables_wrapper .even
 {
-	color: black !important;
+    background-color:transparent !important;
 }
 
 .dataTables_wrapper .odd
 {
-	color: #545454 !important;
+    background-color:transparent !important;
 }
 
 .commentsSumAvgName
@@ -15,4 +15,35 @@
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-box-orient: vertical;
+}
+
+.datatable .sorting
+{
+    color: rgb(255, 230, 0) !important;
+}
+
+#blogMonth
+{
+    padding-bottom: 10px;
+    width: 190px;
+    margin: auto;
+    height: 30px !important;
+}
+
+.allInfo
+{
+    padding-top:5px;
+}
+
+.allBlogsInfo
+{
+    padding-top:10px;
+    padding-bottom:20px;
+}
+
+#allBlogPostsTable_info
+{
+    height: 33px;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
 }

@@ -1,19 +1,28 @@
+var pluginVersion = "4.0";
+var pluginPage = "https://www.djfoxer.pl/licznik_blogowy_redirect.html";
+
 function SetMainBlogStatButton() {
     var month = new Date().getMonth() + 1;
     var maxDate = new Date(new Date().setMonth(month));
     var maxMonth = maxDate.getMonth() + 1;
     month = month > 9 ? month : "0" + month
     maxMonth = maxMonth > 9 ? maxMonth : "0" + maxMonth
-    var allBlogsButton = "<div style='padding-top:10px;padding-bottom:20px;' class='allBlogsInfo'>"
-        + "<div class='counterX link-color font-heading text-h7' style='text-align:center' >"
-        + "<input type='month' id='blogMonth' name='blogMonth' style='text-align: right;' max=" + maxDate.getFullYear() + "-" + maxMonth + " value=" + new Date().getFullYear() + "-" + month + ">"
-        + "<a style='margin-top:5px;' href='javascript:void(0)' class='btn'>rozpocznij analizę wpisów z danego okresu</a>"
-        + "<div class='allInfo' style='padding-top:5px;' ><a href='https://dp.do/106860' class='color-heading text-bold'>stworzone przez: djfoxer [3.0]</a></div></div><div class='allBlogsListContent content-list'>"
+    var allBlogsButton = "<div><div class='allBlogsInfo'>"
+        + "<div style='text-align:center'>"
+        + "<div style='padding-bottom:10px'><input type='month' class='" + GetStyleLabel() + "' id='blogMonth' name='blogMonth' max='" + maxDate.getFullYear() + "-" + maxMonth + "' value='" + new Date().getFullYear() + "-" + month + "' /></div>"
+        + CreateButton("rozpocznij analizę wpisów z danego okresu", "blendingButton")
+        + "<div class='allInfo'><a target='_blank'  href='" + pluginPage + "'>Licznik Blogowy by djfoxer [" + pluginVersion + "]</a></div>"
+        + "<div class='allBlogsListContent'></div>"
         + "</div></div>";
-    allBlogsButton += "<div style='padding-top:10px;padding-bottom:10px;'><div class='counterX link-color font-heading text-h7' style='text-align:center' ><label class='allBlogsInfoText'></label></div></div>"
-    $(".search").prepend(allBlogsButton);
-    $(".allBlogsInfo a:first").click(StartBlendingAllBlogs);
-    $(".allBlogsInfoText").hide();
+    allBlogsButton += "<div style='padding-top:10px;padding-bottom:10px;'><div style='text-align:center' ><a style='cursor:wait !important' class='allBlogsInfoText'></a></div></div></div>"
+
+    $("h3:contains('Popularne tagi')").parent().parent().parent().bind('DOMSubtreeModified', function () {
+        if ($(".allBlogsInfo").length == 0) {
+            $("h3:contains('Popularne tagi')").parent().parent().parent().prepend(allBlogsButton);
+            $(".blendingButton").click(StartBlendingAllBlogs);
+            $(".allBlogsInfoText").hide();
+        }
+    });
 }
 
 function SetAllInfo(text) {
@@ -35,6 +44,15 @@ function ClearData() {
     $("#allBlogPostsTable, .dataTables_wrapper").remove();
 }
 
+function CreateButton(text, className) {
+    var parent = $("div:contains('Dodaj nowy wpis'):last").parent();
+    return "<div class='" + className + " " + parent.parent().attr("class") + "' role='button'><div class='" + parent.attr("class") + "' >" + text + "</div></div>";
+}
+
+function GetStyleLabel() {
+    return $("[placeholder='Szukaj...']:first").attr("class");
+}
+
 function StartBlendingAllBlogs() {
     ClearData();
     var montToCheck = $("#blogMonth").val();
@@ -43,57 +61,71 @@ function StartBlendingAllBlogs() {
         var firstDay = new Date(montToCheckAll[0], montToCheckAll[1] - 1, 1);
         var lastDay = new Date(montToCheckAll[0], montToCheckAll[1], 0);
         lastDay.setHours(23, 59, 59, 999);
-        GetFirstPage(montToCheckAll, lastDay, 1);
+        GetFirstPage(montToCheckAll, lastDay, 0, "https://www.dobreprogramy.pl/api/blogs/?limit=20&ordering=-published_on&pub_state=1&site_dobreprogramy__gte=3");
         SetAllInfo("wyszukuję wpisów, czekaj...");
     }
 }
 
-function GetFirstPage(montToCheckAll, lastDay, page) {
-    var urlToCheck = "https://www.dobreprogramy.pl/Blog," + page + ".html";
+function GetFirstPage(montToCheckAll, lastDay, page, urlToCheck) {
+    if (!urlToCheck) {
+        return;
+    }
     $.ajax({
-        url: urlToCheck,
-        dataType: "html",
+        url: FixHttpsUrl(urlToCheck),
+        dataType: "json",
         success: function (data) {
             SetAllInfo("wyszukuję wpisów, przeglądanie strony " + page + "...");
-            data = GetHtmlWithoutLodingData(data);
-            data = $(data);
-            var createDate = ParseDate(data.find("#content article .content-info time").last().text());
-            if (createDate <= lastDay) {
-
-                ComputeAllBlogsData(montToCheckAll, page);
+            if (new Date(data.results[data.results.length - 1].published_on) <= lastDay) {
+                ComputeAllBlogsData(montToCheckAll, page, urlToCheck);
             }
             else {
-                GetFirstPage(montToCheckAll, lastDay, ++page);
+                GetFirstPage(montToCheckAll, lastDay, ++page, data.next);
             }
         }
     })
 
 }
 
-function ComputeAllBlogsData(montToCheckAll, page) {
+function FixHttpsUrl(url) {
+    if (!url) {
+        return url;
+    }
+    return url.replace("http://www.dobreprogramy.pl/api/blogs", "https://www.dobreprogramy.pl/api/blogs");
+}
+
+function ComputeAllBlogsData(montToCheckAll, page, urlToCompute) {
+    if (!urlToCompute) {
+        return;
+    }
     SetAllInfo("rozpoczynam analizę strony " + page + "...");
-    var urlToCompute = "https://www.dobreprogramy.pl/Blog," + page + ".html";
     $.ajax({
-        url: urlToCompute,
-        dataType: "html",
+        url: FixHttpsUrl(urlToCompute),
+        dataType: "json",
         success: function (data) {
-            data = GetHtmlWithoutLodingData(data);
-            data = $(data);
             var postsToAddToCompute = [];
-            data.find("#content article").each(function (i, elem) {
-                elem = $(elem);
-                var postDate = ParseDate(elem.find("time").text());
+
+            data.results.forEach(elem => {
+                var postDate = new Date(elem.published_on);
                 if (postDate && postDate.getFullYear() == montToCheckAll[0] && (postDate.getMonth() + 1) == montToCheckAll[1]) {
-                    var postToAdd = new Post(elem.find("a").first().text(), elem.find("a").first().attr("href"), 0, elem.find("time").text()
-                        , false, null, elem.find("aside span").last().text(), 1, elem.attr("id")
-                        , elem.find(".content-info a").first().text());
+                    var postToAdd = new Post(
+                        elem.title,
+                        "https://www.dobreprogramy.pl/@" + elem.created_by.username + "/" + elem.slug + ",blog," + elem.id,
+                        0,
+                        postDate,
+                        false,
+                        null,
+                        elem.comments_count,
+                        1,
+                        elem.id,
+                        elem.created_by.username
+                    );
                     postsToAddToCompute.push(postToAdd);
                 }
             });
 
             if (postsToAddToCompute.length > 0) {
                 allPosts = allPosts.concat(postsToAddToCompute);
-                ComputeAllBlogsData(montToCheckAll, ++page);
+                ComputeAllBlogsData(montToCheckAll, ++page, data.next);
             }
             else {
                 RenderAllBlogTable(allPosts);
@@ -133,7 +165,7 @@ function RenderAllBlogTable(allPosts) {
     });
 
     $("#allBlogPostsTable, .dataTables_wrapper").remove();
-    $("#content").prepend("<table id='allBlogPostsTable'>"
+    $("div:contains('Dodaj nowy wpis'):eq(4)").prepend("<table id='allBlogPostsTable' class='" + GetStyleLabel() + "'>"
         + "<thead>"
         + "<th>Autor</th>"
         + "<th>Wpisy</th>"
@@ -143,47 +175,56 @@ function RenderAllBlogTable(allPosts) {
         + "<th>Średnia kom.</th>"
         + "<th>Najwięcej kom. pod wpisem</th>"
         + "</thead><tbody> </tbody></table>");
-    $('#allBlogPostsTable').DataTable({
-        data: toRender,
-        "columns": [
-            { "data": "author" },
-            { "data": "blogSum" },
-            { "data": "blogSumAllPercent" },
-            { "data": "comments" },
-            { "data": "commentsSumAllPercent" },
-            { "data": "commentsSumAvg" },
-        ],
-        "language": {
-            "processing": "Przetwarzanie...",
-            "search": "Szukaj:",
-            "lengthMenu": "Pokaż _MENU_ pozycji",
-            "info": "Pozycje od _START_ do _END_ z _TOTAL_ łącznie",
-            "infoEmpty": "Pozycji 0 z 0 dostępnych",
-            "infoFiltered": "(filtrowanie spośród _MAX_ dostępnych pozycji)",
-            "infoPostFix": "",
-            "loadingRecords": "Wczytywanie...",
-            "zeroRecords": "Nie znaleziono pasujących pozycji",
-            "emptyTable": "Brak danych",
-            "paginate": {
-                "first": "Pierwsza",
-                "previous": "Poprzednia",
-                "next": "Następna",
-                "last": "Ostatnia"
-            },
-            "aria": {
-                "sortAscending": ": aktywuj, by posortować kolumnę rosnąco",
-                "sortDescending": ": aktywuj, by posortować kolumnę malejąco"
-            }
-        },
-        "order": [[1, "desc"]],
-        "columnDefs": [
-            {
-                "render": function (data, type, row) {
-                    return "<div class='commentsSumAvgName'><a target='_blank' href='" + row.maxCommentBlog.url + "'>" + "(" + row.maxCommentBlog.comments + ") " + row.maxCommentBlog.name + "</a></div>"
+    $('#allBlogPostsTable')
+        .on('init.dt', function () {
+            var search = $("#allBlogPostsTable_filter label:first");
+            search.attr("class", GetStyleLabel());
+            search.css("margin-right", "20px");
+            $("#allBlogPostsTable_info").attr("class", GetStyleLabel());
+        })
+        .DataTable({
+            data: toRender,
+            paging: false,
+            "columns": [
+                { "data": "author" },
+                { "data": "blogSum" },
+                { "data": "blogSumAllPercent" },
+                { "data": "comments" },
+                { "data": "commentsSumAllPercent" },
+                { "data": "commentsSumAvg" },
+            ],
+            "language": {
+                "processing": "Przetwarzanie...",
+                "search": "Szukaj:",
+                "lengthMenu": "Pokaż _MENU_ pozycji",
+                "info": "Pozycje od _START_ do _END_ z _TOTAL_ łącznie",
+                "infoEmpty": "Pozycji 0 z 0 dostępnych",
+                "infoFiltered": "(filtrowanie spośród _MAX_ dostępnych pozycji)",
+                "infoPostFix": "",
+                "loadingRecords": "Wczytywanie...",
+                "zeroRecords": "Nie znaleziono pasujących pozycji",
+                "emptyTable": "Brak danych",
+                "paginate": {
+                    "first": "Pierwsza",
+                    "previous": "Poprzednia",
+                    "next": "Następna",
+                    "last": "Ostatnia"
                 },
-                "targets": 6
-            }
-        ]
-    });
+                "aria": {
+                    "sortAscending": ": aktywuj, by posortować kolumnę rosnąco",
+                    "sortDescending": ": aktywuj, by posortować kolumnę malejąco"
+                }
+            },
+            "order": [[1, "desc"]],
+            "columnDefs": [
+                {
+                    "render": function (data, type, row) {
+                        return "<div class='commentsSumAvgName'><a target='_blank' href='" + row.maxCommentBlog.url + "'>" + "(" + row.maxCommentBlog.comments + ") " + row.maxCommentBlog.name + "</a></div>"
+                    },
+                    "targets": 6
+                }
+            ]
+        });
+
     SetAllInfo();
 }
