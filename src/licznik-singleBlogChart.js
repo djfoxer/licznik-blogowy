@@ -1,14 +1,4 @@
-﻿//charts
-//realDate
-//comments
-//counter
-
-// $("#content").prepend("<canvas id='canvas1' width='629' height='400'></canvas>")
-// var ctx = document.getElementById("canvas1").getContext("2d");
-// data = GetDataToChart_WeekDayToCount();
-// new Chart(ctx).Bar(data);
-
-function FFhack() {
+﻿function FFhack() {
     if (fuckSwitchShow === true)
         ShowChart();
     else
@@ -17,8 +7,8 @@ function FFhack() {
 
 function HideChart() {
     fuckSwitchShow = true;
-    $("#content .DivCharts").remove();
-    $(".BtnCharrtsMagicOMG a").text("pokaż wykresy");
+    $(".licznik-allCharts").remove();
+    $(".licznik-toggleOpenCharts a").text("pokaż wykresy");
 }
 
 var randomColorGenerator = function () {
@@ -31,9 +21,8 @@ var rgb2hex = function (red, green, blue) {
 }
 
 var rgb2hexFormat = function (text, alfa) {
-    return "rgba(" + text.split(',')[0].split('(')[1] * 1 + "," + text.split(',')[1] * 1 + "," + text.split(',')[2] * 1 + "," + alfa + ")";
+    return "rgba(" + text.split(',')[0].split('(')[1] * 1 + "," + text.split(',')[1] * 1 + "," + text.split(',')[2].split(')')[0] * 1 + "," + alfa + ")";
 }
-
 
 var mainHex = "";
 
@@ -51,13 +40,17 @@ var scales = {
 };
 
 var drawChart = function (title, labels, data, canvas) {
-
-
     new Chart(canvas, {
         type: 'bar',
         options: {
-            title: {
-                text: title
+            plugins: {
+                title: {
+                    display: true,
+                    text: title
+                },
+                legend: {
+                    display: false
+                }
             },
             scales: scales,
         },
@@ -72,16 +65,22 @@ var drawChart = function (title, labels, data, canvas) {
     });
 }
 
-var drawChart2 = function (title, labels, data, canvas) {
+var drawChartPie = function (title, labels, data, canvas) {
 
-    mainHex1 = rgb2hexFormat(mainColor, "0.7");
+    mainHex1 = rgb2hexFormat(mainColor, "0.5");
     mainHex2 = rgb2hexFormat(mainColor, "0.3");
 
     new Chart(canvas, {
         type: 'pie',
         options: {
-            title: {
-                text: title
+            plugins: {
+                title: {
+                    display: true,
+                    text: title
+                },
+                legend: {
+                    display: false
+                }
             },
             scales: scales,
         },
@@ -98,14 +97,8 @@ var drawChart2 = function (title, labels, data, canvas) {
 
 function ShowChart() {
     window.scrollTo(0, 0);
-    $(".BtnCharrtsMagicOMG a").text("ukryj wykresy");
+    $(".licznik-toggleOpenCharts a").text("ukryj wykresy");
     fuckSwitchShow = false;
-
-
-    //c = document.getElementById("canvas1");
-    //c.width = c.width;
-
-
 
     allPosts = allPosts.sort(function (a, b) { return PostSort("date2", a, b); });
 
@@ -145,21 +138,29 @@ function ShowChart() {
     }
 
     hoursName = ["noc", "ranek", "popołudnie", "wieczór"]
-    main = 0;
-    other = 0;
+    blogMain = 0;
+    blogPortal = 0;
+    blogOther = 0;
 
     comUsers = {};
-    comUserAno = { author: "NIEZALOGOWANY", counter: 0, likes: 0 };
+    comUserAno = { author: "NIEZALOGOWANY", counter: 0, likes: 0, disLikes: 0 };
     comUsersName = [];
     comUsersValue = [];
 
     for (var i = 0; i < allPosts.length; i++) {
         tabDay[allPosts[i].realDate.getDay()] += 1;
         tabMonth[allPosts[i].realDate.getMonth()] += 1;
-        if (allPosts[i].status == 0)
-            other += 1;
-        if (allPosts[i].status == 1)
-            main += 1;
+
+        if (allPosts[i].isOther()) {
+            blogOther += 1;
+        }
+        if (allPosts[i].isOnMainBlog()) {
+            blogMain += 1;
+        }
+        if (allPosts[i].isOnMainPortal()) {
+            blogPortal += 1;
+        }
+
         y = allPosts[i].realDate.getFullYear();
         j = $.inArray(y, year_name);
         if (j != -1) {
@@ -194,13 +195,15 @@ function ShowChart() {
                 if (currentComment.ano === true) {
                     comUserAno.counter += 1;
                     comUserAno.likes += currentComment.likes;
+                    comUserAno.disLikes += currentComment.disLikes;
                 }
                 else {
                     if (!comUsers[currentComment.author]) {
-                        comUsers[currentComment.author] = { author: currentComment.author, counter: 0, likes: 0 };
+                        comUsers[currentComment.author] = { author: currentComment.author, counter: 0, likes: 0, disLikes: 0 };
                     }
                     comUsers[currentComment.author].counter += 1;
                     comUsers[currentComment.author].likes += currentComment.likes;
+                    comUsers[currentComment.author].disLikes += currentComment.disLikes;
                 }
 
                 commDate = currentComment.date;
@@ -216,8 +219,6 @@ function ShowChart() {
                     year_countComments[$.inArray(y, year_nameComments)] = { counter: 1, year: parseInt(y) };
                 }
             }
-
-
         }
     }
 
@@ -256,34 +257,64 @@ function ShowChart() {
         }
     }
 
-    chartMain = (main / (other + main)) * 100;
+    disLikes = comUsers.sort(function (a, b) { return b.disLikes - a.disLikes; }).slice(0, 10);
+    disLikesName = []
+    disLikesValues = [];
+    for (var index = 0; index < disLikes.length; index++) {
+        var element = comUsers[index];
+        if (element.disLikes > 0) {
+            disLikesName.push(element.author);
+            disLikesValues.push(element.disLikes);
+        }
+    }
 
-    $("#content").prepend("<div class='DivCharts'></div>");
+    $("header").next().next().children().children().eq(0).prepend("<div class='licznik-allCharts'></div>");
+    mainHex = rgb2hexFormat(mainColor, "0.8");
 
-    Chart.defaults.global.legend.display = false;
-    Chart.defaults.global.title.display = true;
-    mainHex = rgb2hexFormat(mainColor, "0.5");
+    let daysOfWeekNames = ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"];
+    let monthNames = ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"];
 
-    $("#content .DivCharts").prepend("<canvas id='canvas6' width='629' height='400'></canvas>");
-    drawChart('Liczba komentarzy - godzinowo', hoursName, hoursCom, "canvas6");
+    drawChart('Liczba komentarzy - godzinowo',
+        hoursName,
+        hoursCom,
+        CreateCanvasForChart("canvas6")
+    );
 
-    $("#content .DivCharts").prepend("<canvas id='canvas7' width='629' height='400'></canvas>");
-    drawChart("Top 10 komentujących wg liczby komentarzy (twoich: " + userComments + ", niezalogowanych: " + comUserAno.counter + ")", comUsersName, comUsersValue, "canvas7");
+    drawChart("Top 10 komentujących wg liczby komentarzy (twoich: " + userComments + ", niezalogowanych: " + comUserAno.counter + ")",
+        comUsersName,
+        comUsersValue,
+        CreateCanvasForChart("canvas7")
+    );
 
+    drawChart("Top 10 komentujacych wg Łapek w górę",
+        likesName,
+        likesValues,
+        CreateCanvasForChart("canvas8")
+    );
 
-    $("#content .DivCharts").prepend("<canvas id='canvas8' width='629' height='400'></canvas>");
-    drawChart("Top 10 komentujacych wg Like'ów", likesName, likesValues, "canvas8");
+    drawChart("Top 10 komentujacych wg Łapek w dół",
+        disLikesName,
+        disLikesValues,
+        CreateCanvasForChart("canvas14")
+    );
 
+    drawChart("Liczba komentarzy - dzień tygodnia",
+        daysOfWeekNames,
+        tabDayComments,
+        CreateCanvasForChart("canvas9")
+    );
 
-    $("#content .DivCharts").prepend("<canvas id='canvas9' width='629' height='400'></canvas>");
-    drawChart("Liczba komentarzy - dzień tygodnia", ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"], tabDayComments, "canvas9");
+    drawChart("Liczba komentarzy - miesięcznie",
+        monthNames,
+        tabMonthComments,
+        CreateCanvasForChart("canvas10")
+    );
 
-    $("#content .DivCharts").prepend("<canvas id='canvas10' width='629' height='400'></canvas>");
-    drawChart("Liczba komentarzy - miesięcznie", ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"],
-        tabMonthComments, "canvas10");
-
-    $("#content .DivCharts").prepend("<canvas id='canvas11' width='629' height='400'></canvas>");
-    drawChart("Liczba komentarzy - rocznie", year_nameComments, year_countComments, "canvas11");
+    drawChart("Liczba komentarzy - rocznie",
+        year_nameComments,
+        year_countComments,
+        CreateCanvasForChart("canvas11")
+    );
 
     var year_countPostComments = year_countComments.slice();
     for (var index = 0; index < year_countPostComments.length; index++) {
@@ -293,39 +324,44 @@ function ShowChart() {
         }
     }
 
+    drawChart("Średnia liczba komentarzy na wpis rocznie",
+        year_nameComments,
+        year_countPostComments,
+        CreateCanvasForChart("canvas12")
+    );
 
-    $("#content .DivCharts").prepend("<canvas id='canvas12' width='629' height='400'></canvas>");
-    drawChart("Średnia liczba komentarzy na wpis rocznie", year_nameComments, year_countPostComments, "canvas12");
+    drawChart("Liczba wpisów - godzinowo",
+        hoursName,
+        hours,
+        CreateCanvasForChart("canvas4")
+    );
 
+    drawChart("Liczba wpisów - dzień tygodnia",
+        daysOfWeekNames,
+        tabDay,
+        CreateCanvasForChart("canvas1")
+    );
 
+    drawChart("Liczba wpisów - miesięcznie",
+        monthNames,
+        tabMonth,
+        CreateCanvasForChart("canvas5")
+    );
 
-    $("#content .DivCharts").prepend("<canvas id='canvas4' width='629' height='400'></canvas>");
-    drawChart("Liczba wpisów - godzinowo", hoursName, hours, "canvas4");
+    drawChart("Liczba wpisów - rocznie",
+        year_name,
+        year_count,
+        CreateCanvasForChart("canvas3")
+    );
 
+    drawChart("Promowane wpisy",
+        ["Portal", "Blogi", "Pozostałe"],
+        [blogPortal, blogMain, blogOther],
+        CreateCanvasForChart("canvas2")
+    );
+}
 
-    $("#content  .DivCharts").prepend("<canvas id='canvas1' width='629' height='400'></canvas>");
-    drawChart("Liczba wpisów - dzień tygodnia", ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"], tabDay, "canvas1");
-
-
-
-    $("#content .DivCharts").prepend("<canvas id='canvas5' width='629' height='400'></canvas>");
-    drawChart("Liczba wpisów - miesięcznie", ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"],
-        tabMonth, "canvas5");
-
-
-    $("#content .DivCharts").prepend("<canvas id='canvas3' width='629' height='400'></canvas>");
-    drawChart("Liczba wpisów - rocznie", year_name, year_count, "canvas3");
-
-    if (isYourProfile) {
-
-
-        $("#content .DivCharts").prepend("<canvas id='canvas2' width='629' height='400'></canvas>");
-
-        drawChart2("Liczba wpisów na głównej", ["Główna - " + main, "\"Pozostałe\" - " + other], [chartMain, 100 - chartMain], "canvas2");
-
-
-
-    }
-
-
+function CreateCanvasForChart(id) {
+    $(".licznik-allCharts").prepend(cdom.get("canvas").attribute("id", id).element);
+    return id;
 }
