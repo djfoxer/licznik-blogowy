@@ -3,27 +3,21 @@ async function CreateSingleBlogStatButton() {
     //$("img[alt='" + blogerName + "']").length >= 1 && $("a[href='/@" + blogerName + "']:contains('" + blogerName + "')").length >= 1;
     isYourProfile = false;
 
-    let mainDiv = document.createElement("div");
-    mainDiv.className = "myPostInfo " + GetStyleSpan();
+    let mainDiv = cdom.get("div").class("licznik-singleBlogInfo " + GetStyleSpan());
 
-    let linkDiv = document.createElement("div");
-    linkDiv.className = "myInfo";
-    linkDiv.appendChild(CreatePluginLink(pluginPage, pluginVersion));
+    mainDiv.append(cdom
+        .get("div")
+        .class("licznik-singleStartCountingDiv")
+        .append(await CreateButton("rozpocznij analizę wpisów blogera " + blogerName, "blendBlog"))
+        .append(cdom.get("div")
+            .class("licznik-singleInfoDiv")
+            .append(CreatePluginLink(pluginPage, pluginVersion))
+        ));
+    mainDiv.append(cdom
+        .get("div")
+        .class("myPosts"));
 
-    let infoDiv = document.createElement("div");
-    infoDiv.className = "counterX";
-    infoDiv.appendChild(await CreateButton("rozpocznij analizę wpisów blogera " + blogerName, "blendBlog"));
-    infoDiv.appendChild(linkDiv);
-
-    let myPostsDiv = document.createElement("div");
-    myPostsDiv.className = "myPosts";
-
-    mainDiv.appendChild(infoDiv);
-    mainDiv.appendChild(myPostsDiv);
-
-    let topDiv = document.createElement("div");
-    topDiv.appendChild(mainDiv);
-    return topDiv;
+    return cdom.get("div").append(mainDiv).element;
 }
 
 function GetBlogerName() {
@@ -167,14 +161,14 @@ function DrawData() {
 
     let sortComments = cdom
         .get("label")
-        .css("myPostInfo-sort-item-comment")
+        .css("licznik-singleBlogInfo-sort-item-comment")
         .css("selected")
         .innerHTML("liczby komentarzy")
         .attribute("data-sort", "comments");
 
     let sortDate = cdom
         .get("label")
-        .css("myPostInfo-sort-item-date")
+        .css("licznik-singleBlogInfo-sort-item-date")
         .innerHTML("daty publikacji")
         .attribute("data-sort", "date");
 
@@ -184,45 +178,42 @@ function DrawData() {
 
     let sortDiv = cdom
         .get("div")
-        .css("myPostInfo-sort")
+        .css("licznik-singleBlogInfo-sort")
         .append(cdom
             .get("div")
-            .css("myPostInfo-sort-label")
+            .css("licznik-singleBlogInfo-sort-label")
             .innerHTML("sortuj wpisy wg: ")
         )
         .append(sortComments)
         .append(sortLimiter)
         .append(sortDate);
 
-    let topContainer = document.createElement("div");
-    topContainer.className = "post-sort-info";
-    topContainer.appendChild(sortDiv.element);
+    let topContainer = cdom.get("div").class("post-sort-info")
+        .append(sortDiv);
 
-    let contentList = document.createElement("div");
-    contentList.className = "content-list XX";
-    contentList.id = "myPostInfo-content-list";
+    let contentList = cdom.get("div")
+        .class("content-list licznik-contentDiv")
+        .attribute("id", "licznik-singleBlogInfo-content-list");
 
     for (var i = 0; i < (allPosts.length < 10 ? allPosts.length : 10); i++) {
-        contentList.appendChild(AddPostInfo(i));
+        contentList.append(AddPostInfo(i));
     }
-    topContainer.appendChild(contentList);
+    topContainer.append(contentList);
 
-    let moreButton = document.createElement("div");
-    moreButton.className = "moreMore";
+    let moreButton = cdom.get("div").class("moreMore");
 
-    let moreHref = document.createElement("a");
-    moreHref.innerHTML = "pokaż wszystkie";
-    moreHref.href = "javascript:void(0)";
-    moreHref.onclick = ShowRest;
-    moreButton.appendChild(moreHref);
+    let moreHref = cdom.get("a")
+        .innerHTML("pokaż wszystkie")
+        .attribute("href", "javascript:void(0)")
+    moreHref.element.onclick = ShowRest;
+    moreButton.append(moreHref);
 
-    let mainDiv = document.createElement("div");
-    mainDiv.appendChild(topContainer);
-    mainDiv.appendChild(moreButton);
+    let mainDiv = cdom.get("div")
+        .append(topContainer)
+        .append(moreButton);
 
-
-    $(".myPostInfo .counterX,.myInfo").remove();
-    $(".myPostInfo .myPosts").append(mainDiv);
+    $(".licznik-singleBlogInfo .licznik-singleStartCountingDiv,.licznik-singleInfoDiv").remove();
+    $(".licznik-singleBlogInfo .myPosts").append(mainDiv.element);
 
 
     sumCom = 0;
@@ -242,42 +233,22 @@ function DrawData() {
     }
     if (sumPost > 0) {
 
-        let myStatsInfo = document.createElement("div");
-        myStatsInfo.className = "myStatsInfo";
+        let myStatsInfo = cdom.get("div").class("licznik-singleBlogStatsInfo");
 
-        let commentsDiv = document.createElement("div");
-        commentsDiv.classList = "myStatsInfo-comments";
+        let commentsDiv = cdom.get("div").class("licznik-singleBlogStatsInfo-comments");
 
-        let commnetsLabel = document.createElement("label")
-        commnetsLabel.innerHTML = "komentarzy - ";
-        commentsDiv.appendChild(commnetsLabel);
+        commentsDiv.append(cdom.get("label").innerHTML("komentarzy - "));
+        commentsDiv.append(cdom.get("span").innerHTML("<b>" + sumCom.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + "</b>"));
+        commentsDiv.append(cdom.get("label").innerHTML(" (średnia: <b>" + (sumCom / sumPost).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + "</b>)"));
+        myStatsInfo.append(commentsDiv);
 
-        let commentsCount = document.createElement("span");
-        commentsCount.innerHTML = "<b>" + sumCom.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + "</b>";
-        commentsDiv.appendChild(commentsCount);
+        let postsDiv = cdom.get("div").class("licznik-singleBlogStatsInfo-posts");
 
-        let commnetsAvgLabel = document.createElement("label")
-        commnetsAvgLabel.innerHTML = " (średnia: <b>" + (sumCom / sumPost).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + "</b>)";
-        commentsDiv.appendChild(commnetsAvgLabel);
+        postsDiv.append(cdom.get("label").innerHTML("wpisów - "));
+        postsDiv.append(cdom.get("span").innerHTML("<b>" + sumPost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + "</b>"));
+        postsDiv.append(cdom.get("label").innerHTML(" (promowanie: <b>" + ((sumPostMain / sumPost) * 100).toFixed(0) + "%</b> blog, <b>" + ((sumPostPortalMain / sumPost) * 100).toFixed(0) + "%</b> portal)"));
 
-        myStatsInfo.appendChild(commentsDiv);
-
-        let postsDiv = document.createElement("div");
-        postsDiv.classList = "myStatsInfo-posts";
-
-        let postsLabel = document.createElement("label")
-        postsLabel.innerHTML = "wpisów - ";
-        postsDiv.appendChild(postsLabel);
-
-        let postsCount = document.createElement("span");
-        postsCount.innerHTML = "<b>" + sumPost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + "</b>";
-        postsDiv.appendChild(postsCount);
-
-        let postsAvgLabel = document.createElement("label")
-        postsAvgLabel.innerHTML = " (promowanie: <b>" + ((sumPostMain / sumPost) * 100).toFixed(0) + "%</b> blog, <b>" + ((sumPostPortalMain / sumPost) * 100).toFixed(0) + "%</b> portal)";
-        postsDiv.appendChild(postsAvgLabel);
-
-        myStatsInfo.appendChild(postsDiv);
+        myStatsInfo.append(postsDiv);
 
         let showCharts = cdom.get("div").css("licznik-toggleOpenCharts")
             .append(cdom
@@ -285,24 +256,13 @@ function DrawData() {
                 .css("licznik-toggleOpenChartsHref")
                 .innerHTML("pokaż wykresy")
                 .attribute("href", "javascript:void(0)"));
-        myStatsInfo.appendChild(showCharts.element);
+        myStatsInfo.append(showCharts);
 
-        $(".myPostInfo").prepend(myStatsInfo);
+        $(".licznik-singleBlogInfo").prepend(myStatsInfo.element);
     }
 
 
     $(".licznik-toggleOpenCharts a").bind("click", function () { FFhack() });
-
-    $(".myPostInfo .myStatsInfo span").addClass("color-heading text-bold");
-
-    $('.myPostInfo .dropdown').click(function () {
-        if ($(this).hasClass('active') == true) {
-            $(this).removeClass('active').children('ul').hide();
-        } else {
-            $('.myPostInfo .dropdown').removeClass('active').children('ul').hide();
-            $(this).addClass('active').children('ul').show();
-        }
-    });
 
     $("[data-sort]").click(function () { SortMyPosts(this); })
 }
@@ -310,7 +270,7 @@ function DrawData() {
 function SortMyPosts(par) {
     var sortName = $(par).attr("data-sort");
     let isSelected = $(par).hasClass("selected");
-    $(".myPostInfo-sort label").removeClass("selected");
+    $(".licznik-singleBlogInfo-sort label").removeClass("selected");
     $(par).addClass("selected");
     allPosts = allPosts.sort(function (a, b) {
         return isSelected ? PostSort(sortName, b, a) : PostSort(sortName, a, b);
@@ -319,14 +279,14 @@ function SortMyPosts(par) {
 }
 
 function RenderPosts() {
-    $(".myPostInfo .content-list .XX").empty();
+    $(".licznik-singleBlogInfo .content-list .licznik-contentDiv").empty();
     countToShow = ($(".moreMore").length == 0) ? allPosts.length : (allPosts.length < 10 ? allPosts.length : 10);
 
-    var contentList = cdom.getById("myPostInfo-content-list");
+    var contentList = cdom.getById("licznik-singleBlogInfo-content-list");
     if (contentList.element) {
-        contentList.element.innerHTML = "";
+        contentList.innerHTML("");
         for (var i = 0; i < countToShow; i++) {
-            contentList.element.appendChild(AddPostInfo(i));
+            contentList.append(AddPostInfo(i));
         }
     }
 }
@@ -336,40 +296,24 @@ function HideIfNotYourProfile() {
 }
 
 function AddPostInfo(i) {
-    let itemDev = document.createElement("div");
-    itemDev.className = "post-item";
+    let itemDev = cdom.get("div").class("post-item");
+    let itemTitle = cdom.get("div");
 
-    let itemTitle = document.createElement("div");
+    let itemLink = cdom.get("a").class("post-item-link " + (allPosts[i].info == true ? "post-item-link-info" : ""))
+        .attribute("target", "_blank")
+        .attribute("href", allPosts[i].url)
+        .innerHTML(allPosts[i].name);
+    itemTitle.append(itemLink);
+    itemDev.append(itemTitle);
+    itemDev.append(cdom.get("div").class("post-item-date").innerHTML(allPosts[i].date.toLocaleString("pl")));
 
-    let itemLink = document.createElement("a");
-    itemLink.className = "post-item-link " + (allPosts[i].info == true ? "post-item-link-info" : "");
-    itemLink.target = "_blank";
-    itemLink.href = allPosts[i].url;
-    itemLink.innerHTML = allPosts[i].name;
-    itemTitle.appendChild(itemLink);
-    itemDev.appendChild(itemTitle);
+    let itemDetails_comments = cdom.get("span").innerHTML("komentarze: " + allPosts[i].comments.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "));
+    let itemDetails_MainStatus = cdom.get("span").innerHTML("• promowanie: " + (!allPosts[i].isOnMainBlog() ? "-" : "blog" + (allPosts[i].isOnMainPortal() ? ", portal" : "")));
 
-    let itemDate = document.createElement("div");
-    itemDate.className = "post-item-date";
-    itemDate.innerHTML = allPosts[i].date.toLocaleString("pl");
-    itemDev.appendChild(itemDate);
-
-    /*
-    let itemCount = document.createElement("span");
-    itemCount.className = "post-item-count";
-    itemCount.innerHTML = allPosts[i].counter.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " wyświetleń";
-    itemDev.appendChild(itemCount);*/
-
-    let itemDetails_comments = document.createElement("span");
-    itemDetails_comments.innerHTML = "komentarze: " + allPosts[i].comments.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-    let itemDetails_MainStatus = document.createElement("span");
-    itemDetails_MainStatus.innerHTML = "• promowanie: " + (!allPosts[i].isOnMainBlog() ? "-" : "blog" + (allPosts[i].isOnMainPortal() ? ", portal" : ""));
-
-    let itemDetails = document.createElement("div");
-    itemDetails.className = "post-item-details " + $("span:contains('komentarz'):first").parent().parent().attr("class");
-    itemDetails.appendChild(itemDetails_comments);
-    itemDetails.appendChild(itemDetails_MainStatus);
-    itemDev.appendChild(itemDetails);
+    let itemDetails = cdom.get("div").class("post-item-details " + $("span:contains('komentarz'):first").parent().parent().attr("class"));
+    itemDetails.append(itemDetails_comments);
+    itemDetails.append(itemDetails_MainStatus);
+    itemDev.append(itemDetails);
 
     return itemDev;
 }
@@ -380,11 +324,14 @@ function ShowRest() {
 }
 
 function SetInfo(info) {
-    $(".myPostInfo .counterX").html("<a style='cursor:wait !important' class='infoText'>" + info + "</a>");
+    $(".licznik-singleBlogInfo .licznik-singleStartCountingDiv").html(
+        cdom.get("a").class("infoText").attribute("style", "cursor:wait !important")
+            .innerHTML(info).element
+    );
 }
 
 function StartBlending() {
-    mainColor =  $("header").css("border-top-color");
+    mainColor = $("header").css("border-top-color");
     myPosts = [];
     hrefList = []
     SetInfo("rozpoczynam pracę...");

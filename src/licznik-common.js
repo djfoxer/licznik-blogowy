@@ -89,8 +89,7 @@ function CreatePluginLink(pluginPage, pluginVersion) {
     let aHref = cdom.get("a")
         .attribute("target", "_blank")
         .attribute("href", pluginPage)
-        .innerHTML("Licznik Blogowy by djfoxer [" + pluginVersion + "]")
-        .element;
+        .innerHTML("Licznik Blogowy by djfoxer [" + pluginVersion + "]");
     return aHref;
 }
 
@@ -127,7 +126,7 @@ async function CreateButton(text, className) {
             .innerHTML(text)
         );
 
-    return button.element;
+    return button;
 }
 function FindButtonClassInObject(searchSource) {
     return searchSource.find("div:contains('Dodaj nowy wpis'):last").parent().parent().attr("class");

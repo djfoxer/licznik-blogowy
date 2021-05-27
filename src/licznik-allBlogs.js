@@ -5,62 +5,52 @@ async function CreateMainBlogStatButton() {
     month = month > 9 ? month : "0" + month
     maxMonth = maxMonth > 9 ? maxMonth : "0" + maxMonth
 
-    let topContainer = document.createElement("div");
+    let topContainer = cdom.get("div");
 
-    let welcomeContainer = document.createElement("div");
-    welcomeContainer.className = "allBlogsInfo";
+    let welcomeContainer = cdom.get("div").class("licznik-allBlogsContainer");
 
-    let monthInput = document.createElement("input");
-    monthInput.type = "month";
-    monthInput.className = GetStyleLabel();
-    monthInput.id = "licznik-selectMonth";
-    monthInput.name = monthInput.id;
-    monthInput.max = maxDate.getFullYear() + "-" + maxMonth;
-    monthInput.value = new Date().getFullYear() + "-" + month;
+    let monthInput = cdom
+        .get("input")
+        .attribute("type", "month")
+        .class(GetStyleLabel())
+        .attribute("id", "licznik-selectMonth")
+        .attribute("name", "licznik-selectMonth")
+        .attribute("max", maxDate.getFullYear() + "-" + maxMonth)
+        .attribute("value", new Date().getFullYear() + "-" + month);
 
-    let monthDiv = document.createElement("div");
-    monthDiv.className = "monthDiv";
-    monthDiv.appendChild(monthInput);
+    let monthDiv = cdom.get("div").class("licznik-monthDiv");
+    monthDiv.append(monthInput);
 
-    let linkDiv = document.createElement("div");
-    linkDiv.className = "licznik-statusInfoAllBlogs";
-    linkDiv.appendChild(CreatePluginLink(pluginPage, pluginVersion));
+    let linkDiv = cdom.get("div").class("licznik-statusInfoAllBlogs")
+    linkDiv.append(CreatePluginLink(pluginPage, pluginVersion));
 
-    let allBlogsListContent = document.createElement("div");
-    allBlogsListContent.className = "allBlogsListContent";
+    welcomeContainer
+        .append(monthDiv)
+        .append(await CreateButton("rozpocznij analizę wpisów z danego okresu", "blendingButton"))
+        .append(linkDiv)
+        .append(cdom.get("div").class("allBlogsListContent"))
 
-    welcomeContainer.appendChild(monthDiv);
-    welcomeContainer.appendChild(await CreateButton("rozpocznij analizę wpisów z danego okresu", "blendingButton"));
-    welcomeContainer.appendChild(linkDiv);
-    welcomeContainer.appendChild(allBlogsListContent);
+    topContainer.append(welcomeContainer);
 
-    topContainer.appendChild(welcomeContainer);
+    let infoContainer = cdom.get("div").class("licznik-allInfoContainer");
+    infoContainer.append(cdom.get("a").class("licznik-allBlogsInfoText"));
 
-    let infoContainer = document.createElement("div");
-    infoContainer.className = "infoContainer"
+    let mainContainer = cdom.get("div").class("licznik-allBlogInfo");
+    mainContainer.append(topContainer);
+    mainContainer.append(infoContainer);
 
-    let allBlogsInfoText = document.createElement("a");
-    allBlogsInfoText.className = "allBlogsInfoText"
-
-    infoContainer.appendChild(allBlogsInfoText);
-
-    let mainContainer = document.createElement("div");
-    mainContainer.appendChild(topContainer);
-    mainContainer.appendChild(infoContainer);
-    mainContainer.className = "allBlogInfo"
-
-    return mainContainer;
+    return mainContainer.element;
 }
 
 function SetAllInfo(text) {
     if (text) {
-        $(".allBlogsInfo").hide();
-        $(".allBlogsInfoText").show();
-        $(".allBlogsInfoText").text(text);
+        $(".licznik-allBlogsContainer").hide();
+        $(".licznik-allBlogsInfoText").show();
+        $(".licznik-allBlogsInfoText").text(text);
     }
     else {
-        $(".allBlogsInfo").show();
-        $(".allBlogsInfoText").hide();
+        $(".licznik-allBlogsContainer").show();
+        $(".licznik-allBlogsInfoText").hide();
     }
 }
 
@@ -68,7 +58,7 @@ function ClearData() {
     allPosts = [];
     myPosts = [];
     hrefList = [];
-    $("#allBlogPostsTable, .dataTables_wrapper").remove();
+    $("#licznik-allBlogPostsTable, .dataTables_wrapper").remove();
 }
 
 
@@ -128,30 +118,28 @@ class SumBlog {
 }
 
 function CreateAllBlogPostsTable() {
-    let table = document.createElement("table");
-    table.id = "allBlogPostsTable";
-    table.className = GetStyleLabel();
+    let table = cdom.get("table")
+    .attribute("id","licznik-allBlogPostsTable")
+    .class(GetStyleLabel());
 
-    let thead = document.createElement("thead");
-    thead.appendChild(CreateTh("Autor"));
-    thead.appendChild(CreateTh("Wpisy blog"));
-    thead.appendChild(CreateTh("Wpisy portal"));
-    thead.appendChild(CreateTh("Udział wpisów"));
-    thead.appendChild(CreateTh("Kom."));
-    thead.appendChild(CreateTh("Udział kom."));
-    thead.appendChild(CreateTh("Średnia kom."));
-    thead.appendChild(CreateTh("Najwięcej kom. pod wpisem"));
+    let thead = cdom.get("thead");
+    thead.append(CreateTh("Autor"));
+    thead.append(CreateTh("Wpisy blog"));
+    thead.append(CreateTh("Wpisy portal"));
+    thead.append(CreateTh("Udział wpisów"));
+    thead.append(CreateTh("Kom."));
+    thead.append(CreateTh("Udział kom."));
+    thead.append(CreateTh("Średnia kom."));
+    thead.append(CreateTh("Najwięcej kom. pod wpisem"));
 
-    table.appendChild(thead);
-    table.appendChild(document.createElement("tbody"));
+    table.append(thead);
+    table.append(cdom.get("tbody"));
 
-    return table;
+    return table.element;
 }
 
 function CreateTh(text) {
-    let th = document.createElement("th");
-    th.innerHTML = text;
-    return th;
+    return cdom.get("th").innerHTML(text);
 }
 
 function RenderAllBlogTable(allPosts) {
@@ -175,14 +163,14 @@ function RenderAllBlogTable(allPosts) {
         element.commentsSumAvg = Math.round(element.comments / element.blogSum);
     });
 
-    $("#allBlogPostsTable, .dataTables_wrapper").remove();
+    $("#licznik-allBlogPostsTable, .dataTables_wrapper").remove();
     $("div:contains('Dodaj nowy wpis'):eq(4)").prepend(CreateAllBlogPostsTable().outerHTML);
-    $('#allBlogPostsTable')
+    $('#licznik-allBlogPostsTable')
         .on('init.dt', function () {
-            var search = $("#allBlogPostsTable_filter label:first");
+            var search = $("#licznik-allBlogPostsTable_filter label:first");
             search.attr("class", GetStyleLabel());
             search.css("margin-right", "20px");
-            $("#allBlogPostsTable_info").attr("class", GetStyleLabel());
+            $("#licznik-allBlogPostsTable_info").attr("class", GetStyleLabel());
         })
         .DataTable({
             data: toRender,
@@ -222,16 +210,15 @@ function RenderAllBlogTable(allPosts) {
             "columnDefs": [
                 {
                     "render": function (data, type, row) {
-                        let commentsSumAvgName = document.createElement("div");
-                        commentsSumAvgName.className = "licznik-maxCommentLink";
+                        let commentsSumAvgName = cdom.get("div").class("licznik-maxCommentLink");
 
-                        let link = document.createElement("a");
-                        link.target = "_blank";
-                        link.href = row.maxCommentBlog.url;
-                        link.innerHTML = "(" + row.maxCommentBlog.comments + ") " + row.maxCommentBlog.name;
+                        let link = cdom.get("a")
+                        .attribute("target","_blank")
+                        .attribute("href",row.maxCommentBlog.url)
+                        .innerHTML("(" + row.maxCommentBlog.comments + ") " + row.maxCommentBlog.name);
 
-                        commentsSumAvgName.appendChild(link);
-                        return commentsSumAvgName.outerHTML;
+                        commentsSumAvgName.append(link);
+                        return commentsSumAvgName.element.outerHTML;
                     },
                     "targets": 7
                 }

@@ -35,20 +35,21 @@
     padding-top:5px;
 }
 
-.allBlogsInfo
+.licznik-allBlogsContainer
 {
     padding-top:10px;
-    padding-bottom:20px;
+    padding-bottom:20px; 
+    text-align:center;
 }
 
-#allBlogPostsTable_info
+#licznik-allBlogPostsTable_info
 {
     height: 33px;
     padding-bottom: 5px;
     margin-bottom: 5px;
 }
 
-.myPostInfo
+.licznik-singleBlogInfo
 {
     padding-top:10px;
     padding-bottom:20px;
@@ -57,53 +58,48 @@
     font-weight: 400 !important;
 }
 
-.myInfo
+.licznik-singleInfoDiv
 {
     padding-top:5px;
     font-size: 16px;
     font-weight: 400;
 }
 
-.counterX
+.licznik-singleStartCountingDiv
 {
     text-align:center;
 }
 
-.monthDiv
+.licznik-monthDiv
 {
     padding-bottom:10px;
 }
 
-.allBlogsInfo
-{
-    text-align:center;
-}
-
-.infoContainer
+.licznik-allInfoContainer
 {
     padding-top:10px;
     padding-bottom:10px;
     text-align:center;
 }
 
-.allBlogsInfoText
+.licznik-allBlogsInfoText
 {
     cursor:wait !important;
 }
 
-.XX .post-item
+.licznik-contentDiv .post-item
 {
     padding-top: 10px;
     padding-bottom: 5px;
 }
 
-.XX .post-item-details span
+.licznik-contentDiv .post-item-details span
 {
     padding-right: 5px;
 
 }
 
-.XX .post-item-details
+.licznik-contentDiv .post-item-details
 {
     font-size: 15px;
     padding-bottom: 10px;
@@ -111,22 +107,22 @@
     margin: 0 !important;
 }
 
-.XX .post-item-date
+.licznik-contentDiv .post-item-date
 {
     font-size: 15px;
 }
 
-.myStatsInfo
+.licznik-singleBlogStatsInfo
 {
     padding-bottom: 25px;
 }
 
-.myPostInfo-sort .selected
+.licznik-singleBlogInfo-sort .selected
 {
     font-weight: bolder;
 }
 
-.myPostInfo-sort label
+.licznik-singleBlogInfo-sort label
 {
     padding-right: 10px;
     cursor: pointer;

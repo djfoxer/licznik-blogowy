@@ -24,26 +24,26 @@ async function StatButtonWatch() {
 }
 
 async function SetSingleBlogStatButton() {
-    if ($(".myPostInfo").length == 0) {
+    if ($(".licznik-singleBlogInfo").length == 0) {
         ClearOldDivs();
         $("h3:contains('O mnie'):first").prepend(await CreateSingleBlogStatButton());
-        $(".myPostInfo .blendBlog").click(StartBlending);
+        $(".licznik-singleBlogInfo .blendBlog").click(StartBlending);
 
     }
 }
 
 async function SetMainBlogStatButton() {
-    if ($(".allBlogInfo").length == 0) {
+    if ($(".licznik-allBlogInfo").length == 0) {
         ClearOldDivs();
         $("h3:contains('Popularne tagi')").parent().parent().parent().prepend(await CreateMainBlogStatButton());
         $(".blendingButton").click(StartBlendingAllBlogs);
-        $(".allBlogsInfoText").hide();
+        $(".licznik-allBlogsInfoText").hide();
     }
 }
 
 function ClearOldDivs() {
-    $(".myPostInfo").remove();
-    $(".allBlogInfo").remove();
+    $(".licznik-singleBlogInfo").remove();
+    $(".licznik-allBlogInfo").remove();
     blogerName = null;
     isYourProfile = false;
     allPosts = [];

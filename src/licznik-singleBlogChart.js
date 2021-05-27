@@ -26,19 +26,6 @@ var rgb2hexFormat = function (text, alfa) {
 
 var mainHex = "";
 
-var scales = {
-    xAxes: [{
-        ticks: {
-            autoSkip: false,
-        }
-    }],
-    yAxes: [{
-        ticks: {
-            min: 0
-        }
-    }]
-};
-
 var drawChart = function (title, labels, data, canvas) {
     new Chart(canvas, {
         type: 'bar',
@@ -52,14 +39,14 @@ var drawChart = function (title, labels, data, canvas) {
                     display: false
                 }
             },
-            scales: scales,
         },
         data: {
             labels: labels,
             datasets: [{
                 data: data,
                 backgroundColor: mainHex,
-                borderWidth: 1
+                borderWidth: 1,
+                maxBarThickness: 100
             }]
         }
     });
