@@ -29,7 +29,7 @@
         "licznik-init.js"
       ],
       "css": [
-        "lib/datatables.min.css",
+        "css/datatables.min.css",
         "css/licznik.css"
       ]
     }
