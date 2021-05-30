@@ -33,7 +33,7 @@ Wtyczka integruje się całkowicie ze stroną. Menu do sortowania wpisów, a tak
 
 W wersji 4.0 wprowadza integrację z nową odsłoną portalu.
 
-### Strona z opisem wersji 4.0: [Licznik Blogowy 4.0 - gotowy do działania](https://www.djfoxer.pl/licznik_blogowy_redirect.html)
+### Strona z opisem wersji 4.0: [Licznik Blogowy 4.0 - nowy niezbędnik blogera](https://www.djfoxer.pl/licznik_blogowy_redirect.html)
 
 ![img1](./screens/3/chrome/x1_1.png)
 
