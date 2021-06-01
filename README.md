@@ -2,6 +2,8 @@
 
 Licznik Blogowy przeznaczony jest do analizy blogów na portalu [https://www.dobreprogramy.pl/](https://www.dobreprogramy.pl/). Wtyczka pozwoli na bardzo szczegółową analizę statystyk każdego bloga. Dodatek na żądanie pobierze wszystkie wpisy aktualnie wyświetlanego bloga i przedstawi wykresy oraz tekstowe statystyki związane z prowadzonym blogiem. Licznik Blogowy zbiera dane odnośnie ilości wpisów oraz komentarzy.
 
+![logo](./screens/logo.png)
+
 Licznik Blogowy dodaje przycisk na stronie domowej autora bloga portalu [https://www.dobreprogramy.pl/](https://www.dobreprogramy.pl/). Wtyczka działa dla każdego bloga, nie trzeba być zalogowanym. Jeśli jednak jesteś zalogowany, wówczas Licznik Blogowy przedstawi jeszcze więcej statystyk po wejściu na Twojego bloga.
 
 Wtyczka dynamicznie zbiera statystyki z bloga na żądanie użytkownika. Po zakończeniu obliczeń z prawej strony wyświetlone zostaną wszystkie wpisy użytkownika. Posiadają one pełny tytuł, datę oraz ilość komentarzy. Po kliknięciu na tytuł przejdziemy do wpisu. Na samej górze pokazane są podstawowe statystyki odnośnie bloga. 
@@ -30,6 +32,8 @@ Dodatkowo na głównej stronie bloga jest możliwość analizy globalnych blogó
 Wtyczka integruje się całkowicie ze stroną. Menu do sortowania wpisów, a także przyciski i pola tekstowe wykorzystują styl bloga. Wtyczka wspiera jasny i ciemny motyw portalu. Pozwala to na jeszcze lepsze wpasowanie się wtyczki w stylistykę i założenia bloga.
 
 W wersji 4.0 wprowadza integrację z nową odsłoną portalu.
+
+### Strona z opisem wersji 4.0: [Licznik Blogowy 4.0 - nowy niezbędnik blogera](https://www.djfoxer.pl/licznik_blogowy_redirect.html)
 
 ![img1](./screens/3/chrome/x1_1.png)
 
