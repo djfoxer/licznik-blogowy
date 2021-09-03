@@ -28,7 +28,7 @@ async function SetSingleBlogStatButton() {
         ClearOldDivs();
         $("h3:contains('O mnie'):first").prepend(await CreateSingleBlogStatButton());
         $(".licznik-singleBlogInfo .blendBlog").click(StartBlending);
-
+        $(".licznik-singleBlogInfo .backupBlog").click( () =>  StartBackup());
     }
 }
 

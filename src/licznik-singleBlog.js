@@ -5,14 +5,24 @@ async function CreateSingleBlogStatButton() {
 
     let mainDiv = cdom.get("div").class("licznik-singleBlogInfo " + GetStyleSpan());
 
-    mainDiv.append(cdom
+    let items = cdom
         .get("div")
         .class("licznik-singleStartCountingDiv")
-        .append(await CreateButton("rozpocznij analizę wpisów blogera " + blogerName, "blendBlog"))
-        .append(cdom.get("div")
-            .class("licznik-singleInfoDiv")
-            .append(CreatePluginLink(pluginPage, pluginVersion))
-        ));
+        .append(await CreateButton("± rozpocznij analizę wpisów " + blogerName, "blendBlog"));
+
+    if ($("img[alt='" + blogerName + "']").length >= 1 && $("a[href='/@" + blogerName + "']:contains('" + blogerName + "')").length >= 1) {
+        items
+            .append(cdom.get("div").attribute("style", "padding:10px"))
+            .append(await CreateButton("↓ rozpocznij backup wpisów " + blogerName, "backupBlog"));
+    }
+
+    items.append(cdom.get("div")
+        .class("licznik-singleInfoDiv")
+        .append(CreatePluginLink(pluginPage, pluginVersion))
+    );
+
+    mainDiv.append(items);
+
     mainDiv.append(cdom
         .get("div")
         .class("myPosts"));
@@ -72,31 +82,32 @@ function ShowLoader(text) {
     SetInfo(text + loaderIco);
 }
 
-function GetDataFromProfile(linkToSearch) {
+function GetDataFromProfile(linkToSearch, currenCount, blogCount) {
     $.ajax({
         url: linkToSearch,
         dataType: "json",
         success: function (data) {
-            SetInfo("pobieram podstawowe dane ze strony...");
             data.results.forEach(elem => {
                 allPosts.push(CreatePost(elem));
+                SetInfo("pobieram podstawowe dane do wpisów " + (currenCount++) + "/" + blogCount + "...");
             });
 
             if (data.next) {
-                GetDataFromProfile(FixHttpsUrl(data.next));
+                GetDataFromProfile(FixHttpsUrl(data.next), currenCount, blogCount);
             }
             else {
-                GetDataFromPost(0);
+                GetDataFromPost(0, blogCount);
             }
         }
     })
 }
 
 
-function GetDataFromPost(index) {
+function GetDataFromPost(index, blogCount) {
     if (allPosts && allPosts.length > index) {
         var currentPost = allPosts[index];
-        GetComments(currentPost, null, index);
+        SetInfo("pobieram komentarze do wpisów " + (index + 1) + "/" + blogCount + "...");
+        GetComments(currentPost, null, index, blogCount);
     }
     else {
         if (allPosts.length == 0) {
@@ -108,7 +119,7 @@ function GetDataFromPost(index) {
     }
 }
 
-function GetComments(currentPost, endCursor, index) {
+function GetComments(currentPost, endCursor, index, blogCount) {
     var payload =
     {
         "operationName": "getComments",
@@ -143,10 +154,10 @@ function GetComments(currentPost, endCursor, index) {
             ));
         }
         if (dataComm.pageInfo.hasNextPage) {
-            GetComments(currentPost, dataComm.pageInfo.endCursor, index);
+            GetComments(currentPost, dataComm.pageInfo.endCursor, index, blogCount);
         }
         else {
-            GetDataFromPost(++index);
+            GetDataFromPost(++index, blogCount);
         }
     })
 }
@@ -341,7 +352,7 @@ function StartBlending() {
         dataType: "json",
         url: "https://www.dobreprogramy.pl/api/users/nick/" + blogerName + "/",
     }).done(function (data) {
-        GetDataFromProfile(GetBaseUrl(0, data.id));
+        GetDataFromProfile(GetBaseUrl(0, data.id), 0, data.blogs_count);
     });
 }
 

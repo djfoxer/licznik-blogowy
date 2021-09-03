@@ -1,4 +1,4 @@
-var pluginVersion = "4.0";
+var pluginVersion = "5.0";
 var pluginPage = "https://www.djfoxer.pl/licznik_blogowy_redirect.html";
 
 class Post {
@@ -81,6 +81,9 @@ var cdom = {
     event: function (e, f) {
         this.element.addEventListener(e, f, false);
         return this;
+    },
+    getHTML: function () {
+        return this.element.outerHTML;
     }
 }
 
@@ -154,3 +157,25 @@ function FixHttpsUrl(url) {
     }
     return url.replace("http://www.dobreprogramy.pl/", "https://www.dobreprogramy.pl/");
 }
+
+function UrlToPromiseToZip(url) {
+    return new Promise(function (resolve, reject) {
+        JSZipUtils.getBinaryContent(url, function (err, data) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(data);
+            }
+        });
+    });
+}
+
+
+function WaitForMe(ms){
+    var start = new Date().getTime();
+    var end = start;
+    ms *= 1000;
+    while(end < start + ms) {
+      end = new Date().getTime();
+   }
+ }

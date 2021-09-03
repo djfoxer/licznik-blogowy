@@ -1,7 +1,7 @@
 ﻿{
   "name": "Licznik Blogowy dobreprogramy",
-  "version": "4.0",
-  "description": "Wtyczka pozwoli na szczegółową analizę statystyk każdego bloga na portalu dobreprogramy.pl.",
+  "version": "5.0",
+  "description": "Wtyczka pozwala na tworzenie statystyk każdego bloga na portalu dobreprogramy.pl, a także pełną jego archiwizację.",
   "manifest_version": 2,
   "browser_action": {
     "default_title": "Licznik Blogowy dobreprogramy",
@@ -22,11 +22,15 @@
         "lib/datatables.min.js",
         "lib/chart.min.js",
         "lib/underscore-min.js",
+        "lib/FileSaver.js",
+        "lib/jszip.min.js",
+        "lib/jszip-utils.min.js",
         "licznik-common.js",
         "licznik-singleBlog.js",
         "licznik-singleBlogChart.js",
         "licznik-allBlogs.js",
-        "licznik-init.js"
+        "licznik-init.js",
+        "licznik-backup.js"
       ],
       "css": [
         "css/datatables.min.css",
