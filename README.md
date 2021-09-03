@@ -33,7 +33,8 @@ Dodatkowo na głównej stronie bloga jest możliwość analizy globalnych blogó
 
 Wtyczka integruje się całkowicie ze stroną. Menu do sortowania wpisów, a także przyciski i pola tekstowe wykorzystują styl bloga. Wtyczka wspiera jasny i ciemny motyw portalu. Pozwala to na jeszcze lepsze wpasowanie się wtyczki w stylistykę i założenia bloga.
 
-W wersji 4.0 wprowadza integrację z nową odsłoną portalu.
+Wersja 4.0 wprowadza integrację z nową odsłoną portalu.
+Wersja 5.0 dodaje tworzenie archiwum własnego bloga.
 
 ### Strona z opisem wersji 5.0: [Licznik Blogowy 5.0](https://www.djfoxer.pl/licznik_blogowy_redirect.html)
 
