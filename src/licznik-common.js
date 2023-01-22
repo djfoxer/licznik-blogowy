@@ -1,4 +1,4 @@
-var pluginVersion = "5.0";
+var pluginVersion = "5.1";
 var pluginPage = "https://www.djfoxer.pl/licznik_blogowy_redirect.html";
 
 class Post {

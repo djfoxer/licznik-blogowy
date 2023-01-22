@@ -10,7 +10,7 @@ async function CreateSingleBlogStatButton() {
         .class("licznik-singleStartCountingDiv")
         .append(await CreateButton("± rozpocznij analizę wpisów " + blogerName, "blendBlog"));
 
-    if ($("img[alt='" + blogerName + "']").length >= 1 && $("a[href='/@" + blogerName + "']:contains('" + blogerName + "')").length >= 1) {
+    if ($("link[title^='Blog użytkownika']").length >= 1 && $("a[href='/@" + blogerName.toLowerCase() + "']:contains('" + blogerName + "')").length >= 1) {
         items
             .append(cdom.get("div").attribute("style", "padding:10px"))
             .append(await CreateButton("↓ rozpocznij backup wpisów " + blogerName, "backupBlog"));
@@ -31,9 +31,8 @@ async function CreateSingleBlogStatButton() {
 }
 
 function GetBlogerName() {
-    let currentUrl = $(location).attr('href');
-    if (currentUrl.startsWith("https://www.dobreprogramy.pl/@")) {
-        return currentUrl.replace("https://www.dobreprogramy.pl/@", "");
+    if ($("button[aria-label='Otwórz menu użytkownika']").length >=1) {
+        return $("button[aria-label='Otwórz menu użytkownika']").text();
     } else {
         return null;
     }

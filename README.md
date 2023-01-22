@@ -36,8 +36,9 @@ Wtyczka integruje się całkowicie ze stroną. Menu do sortowania wpisów, a tak
 Historia zmian:
 - 4.0 - integracja z nową odsłoną portalu
 - 5.0 - archiwizacja własnego bloga (tekst + zdjęcia)
+- 5.1 - poprawki w wykrywaniu zalogowanego użytkownika
 
-### Strona z opisem najnowszej wersji: [Licznik Blogowy 5.0](https://www.djfoxer.pl/licznik_blogowy_redirect.html)
+### Strona z opisem najnowszej wersji: [Licznik Blogowy 5.1](https://www.djfoxer.pl/licznik_blogowy_redirect.html)
 
 ![img1](./screens/3/chrome/x1_1.png)
 
